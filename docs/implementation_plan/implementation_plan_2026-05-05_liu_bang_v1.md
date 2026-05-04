@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Architecture ratified (§6 confirmed 2026-05-05) — ready for Phase 0 git work; Phase 0.1 onwards unblocked
+**status:** Phase 0 complete (2026-05-05) — repo bootstrapped, deps installed, tooling configured, pushed to https://github.com/NochrisCheung/historrent. Phase 1 unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -641,8 +641,8 @@ Establishes the working environment and CI.
 | 0.23 | 🟢 DONE | **`.env.example`** documenting required env vars: `DEEPSEEK_API_KEY`, `UPSTASH_REDIS_REST_URL` (optional in dev), `UPSTASH_REDIS_REST_TOKEN` (optional in dev). Note: Upstash vars are populated automatically when the Upstash store is provisioned via the Vercel Marketplace (Phase 13.2).                                                                                                                                                     |
 | 0.24 | 🟢 DONE | **Top-level scripts in `package.json`:** `dev`, `build`, `start`, `test`, `test:ui`, `test:e2e`, `lint`, `typecheck`, `format`, `subset-fonts`.                                                                                                                                                                                                                                                                                                   |
 | 0.25 | 🟢 DONE | **`.github/workflows/ci.yml`:** on PR, runs `pnpm lint && pnpm typecheck && pnpm test && pnpm build`. (Deploy is automatic via Vercel's GitHub integration; no separate deploy workflow needed.)                                                                                                                                                                                                                                                  |
-| 0.26 | 🔴 TODO | **First commit** with all the above. Not yet pushed.                                                                                                                                                                                                                                                                                                                                                                                              |
-| 0.27 | 🔴 TODO | **`gh repo create NochrisCheung/historrent --public --source=. --push`** — confirm it lands under NochrisCheung.                                                                                                                                                                                                                                                                                                                                  |
+| 0.26 | 🟢 DONE | **First commit** with all the above. Not yet pushed.                                                                                                                                                                                                                                                                                                                                                                                              |
+| 0.27 | 🟢 DONE | **`gh repo create NochrisCheung/historrent --public --source=. --push`** — confirm it lands under NochrisCheung.                                                                                                                                                                                                                                                                                                                                  |
 
 **Acceptance:** `pnpm dev` runs the (empty) Next.js dev server on port 3000. `pnpm test` runs the (empty) Vitest. `pnpm typecheck` is clean. `pnpm build` produces a successful production build. Repo on GitHub under `NochrisCheung/historrent`.
 
