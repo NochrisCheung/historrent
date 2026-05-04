@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+# Scan staged files for leaked secrets before allowing the commit.
+# DEEPSEEK_API_KEY and any future credential must never reach git history.
+gitleaks protect --staged --redact --verbose
+
+# Run ESLint + Prettier on staged files only.
+pnpm exec lint-staged
