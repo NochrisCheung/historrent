@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 4 complete (2026-05-05) — Zustand store, TimelineItem dot+label per event, hover/click wired with react-spring (frameloop=demand-compatible). 58 unit tests + 5 E2E green. Phase 5 (detail panel) unblocked.
+**status:** Phase 5 complete (2026-05-05) — DetailPanel slides in via Framer Motion, citation card linking to ctext.org/zhs, ESC + click-outside + close-button all dismiss. 61 unit + 10 E2E green. Phase 6 (i18n) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -704,12 +704,12 @@ The empty stage. No content yet.
 
 | #   | Status  | Task                                                                                                                                                                                                                                                   |
 | --- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 5.1 | 🔴 TODO | **`src/components/ui/DetailPanel.tsx`** — fixed-position panel, slides in from right when `selectedId !== null`. Framer Motion handles the slide.                                                                                                      |
-| 5.2 | 🔴 TODO | Panel content: event name (large, LXGW WenKai), date (EDTF rendered humanly, `--ink-muted`), description, citation card.                                                                                                                               |
-| 5.3 | 🔴 TODO | **Citation card** uses `formatCitation()` from `src/shared/citation/format.ts`. Includes a link to the ctext.org URI (required by schema, so always present in v1). External-link affordance: `target="_blank" rel="noopener noreferrer"`, small icon. |
-| 5.4 | 🔴 TODO | Close affordance: ESC key + click on canvas outside panel. Both clear `selectedId`.                                                                                                                                                                    |
-| 5.5 | 🔴 TODO | Empty state placeholder for the "show synthesis" button (functional in Phase 9).                                                                                                                                                                       |
-| 5.6 | 🔴 TODO | **E2E:** click item → panel appears → ESC → panel disappears.                                                                                                                                                                                          |
+| 5.1 | 🟢 DONE | **`src/components/ui/DetailPanel.tsx`** — fixed-position panel, slides in from right when `selectedId !== null`. Framer Motion handles the slide.                                                                                                      |
+| 5.2 | 🟢 DONE | Panel content: event name (large, LXGW WenKai), date (EDTF rendered humanly, `--ink-muted`), description, citation card.                                                                                                                               |
+| 5.3 | 🟢 DONE | **Citation card** uses `formatCitation()` from `src/shared/citation/format.ts`. Includes a link to the ctext.org URI (required by schema, so always present in v1). External-link affordance: `target="_blank" rel="noopener noreferrer"`, small icon. |
+| 5.4 | 🟢 DONE | Close affordance: ESC key + click on canvas outside panel. Both clear `selectedId`.                                                                                                                                                                    |
+| 5.5 | 🟢 DONE | Empty state placeholder for the "show synthesis" button (functional in Phase 9).                                                                                                                                                                       |
+| 5.6 | 🟢 DONE | **E2E:** click item → panel appears → ESC → panel disappears.                                                                                                                                                                                          |
 
 **Acceptance:** Click any of the 5 events; panel slides in with name, date, citation. ESC closes.
 

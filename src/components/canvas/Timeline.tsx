@@ -6,15 +6,10 @@ import { CameraRig } from "./camera/CameraRig";
 import { TimelineString } from "./TimelineString";
 import { TimelineItem } from "./TimelineItem";
 import { readCssToken } from "@/shared/styles/cssTokens";
-import { LiuBangCorpus } from "@/data/liu_bang.schema";
-import liuBangData from "@/data/liu_bang.json";
+import { liuBangCorpus } from "@/data/liu_bang";
+import { useTimelineStore } from "@/state/timelineStore";
 
 const FALLBACK_BG = "#FBFCFD"; // Matches --canvas-bg in tokens.css.
-
-// Parse the seed at module-load time. Schema violations fail the build's
-// integration test (src/data/liu_bang.test.ts) before they ever reach here,
-// but parsing here too gives us a typed `corpus` and an extra runtime check.
-const corpus = LiuBangCorpus.parse(liuBangData);
 
 /**
  * Phase 1–4 canvas: calibrated camera, pale background, flat timeline
@@ -26,6 +21,8 @@ const corpus = LiuBangCorpus.parse(liuBangData);
  *  - No always-on animations.
  */
 export function Timeline() {
+  const setSelected = useTimelineStore((s) => s.setSelected);
+
   return (
     <Canvas
       frameloop="demand"
@@ -34,10 +31,13 @@ export function Timeline() {
       onCreated={({ scene }) => {
         scene.background = new Color(readCssToken("--canvas-bg", FALLBACK_BG));
       }}
+      // Click on empty canvas (no mesh hit) clears the current selection.
+      // Mesh clicks call e.stopPropagation() so they never trigger this path.
+      onPointerMissed={() => setSelected(null)}
     >
       <CameraRig />
       <TimelineString />
-      {corpus.events.map((event) => (
+      {liuBangCorpus.events.map((event) => (
         <TimelineItem key={event.id} event={event} />
       ))}
     </Canvas>
