@@ -27,7 +27,7 @@ cp .env.example .env.local   # then fill in DEEPSEEK_API_KEY
 pnpm dev
 ```
 
-Open <http://localhost:3000>.
+Open <http://localhost:3001>.
 
 ## Scripts
 

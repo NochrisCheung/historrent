@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 0 complete (2026-05-05) — repo bootstrapped, deps installed, tooling configured, pushed to https://github.com/NochrisCheung/historrent. Phase 1 unblocked.
+**status:** Phase 1 complete (2026-05-05) — empty canvas + ortho camera + tokens.css live; E2E load spec passing on port 3001. Phase 2 (data layer) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -652,14 +652,14 @@ The empty stage. No content yet.
 
 | #   | Status  | Task                                                                                                                                                                                                                                                |
 | --- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.1 | 🔴 TODO | **`src/components/canvas/Timeline.tsx`** with `'use client'` — `<Canvas frameloop="demand" gl={{ antialias: true }}>`.                                                                                                                              |
-| 1.2 | 🔴 TODO | **`src/components/canvas/camera/CameraRig.tsx`** — `<OrthographicCamera makeDefault position={[0,0,10]} zoom={...}>`. Zoom calibrated so Liu Bang's lifespan (61 years) fits with margin.                                                           |
-| 1.3 | 🔴 TODO | **Background colour** via `<color attach="background" args={[...]}>` reading the resolved value of `--canvas-bg` (read CSS var on mount, pass as RGB).                                                                                              |
-| 1.4 | 🔴 TODO | **`src/styles/tokens.css`** with §3.4 placeholder palette. Imported once in `src/app/globals.css`.                                                                                                                                                  |
-| 1.5 | 🔴 TODO | **`src/fonts/index.ts`** uses `next/font/local` to register LXGW WenKai + Source Han Sans, exposing CSS variables `--font-content`, `--font-chrome`. Fonts referenced from Phase 6 once subsetted; Phase 1 uses fallback stack.                     |
-| 1.6 | 🔴 TODO | **`src/app/layout.tsx`** — root layout: `<html lang="zh-Hans">`, font CSS variables wired, `globals.css` imported, providers (next-intl, etc.) mounted around children.                                                                             |
-| 1.7 | 🔴 TODO | **`src/app/page.tsx`** — mounts `<Timeline />` filling the viewport. (The page itself can stay a Server Component; `<Timeline />` carries the `'use client'` boundary. This way the static shell still SSRs while the canvas hydrates client-side.) |
-| 1.8 | 🔴 TODO | **E2E `tests/e2e/load.spec.ts`** — page loads at `http://localhost:3000`, `<canvas>` element present, no console errors.                                                                                                                            |
+| 1.1 | 🟢 DONE | **`src/components/canvas/Timeline.tsx`** with `'use client'` — `<Canvas frameloop="demand" gl={{ antialias: true }}>`.                                                                                                                              |
+| 1.2 | 🟢 DONE | **`src/components/canvas/camera/CameraRig.tsx`** — `<OrthographicCamera makeDefault position={[0,0,10]} zoom={...}>`. Zoom calibrated so Liu Bang's lifespan (61 years) fits with margin.                                                           |
+| 1.3 | 🟢 DONE | **Background colour** via `<color attach="background" args={[...]}>` reading the resolved value of `--canvas-bg` (read CSS var on mount, pass as RGB).                                                                                              |
+| 1.4 | 🟢 DONE | **`src/styles/tokens.css`** with §3.4 placeholder palette. Imported once in `src/app/globals.css`.                                                                                                                                                  |
+| 1.5 | 🟢 DONE | **`src/fonts/index.ts`** uses `next/font/local` to register LXGW WenKai + Source Han Sans, exposing CSS variables `--font-content`, `--font-chrome`. Fonts referenced from Phase 6 once subsetted; Phase 1 uses fallback stack.                     |
+| 1.6 | 🟢 DONE | **`src/app/layout.tsx`** — root layout: `<html lang="zh-Hans">`, font CSS variables wired, `globals.css` imported, providers (next-intl, etc.) mounted around children.                                                                             |
+| 1.7 | 🟢 DONE | **`src/app/page.tsx`** — mounts `<Timeline />` filling the viewport. (The page itself can stay a Server Component; `<Timeline />` carries the `'use client'` boundary. This way the static shell still SSRs while the canvas hydrates client-side.) |
+| 1.8 | 🟢 DONE | **E2E `tests/e2e/load.spec.ts`** — page loads at `http://localhost:3000`, `<canvas>` element present, no console errors.                                                                                                                            |
 
 **Acceptance:** `pnpm dev` opens to a pale blank canvas at the chosen background colour. No errors. `pnpm test:e2e` passes the load spec.
 

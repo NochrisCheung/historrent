@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3000;
+// Historrent's dev server runs on 3001 (3000 may be occupied by another project on
+// the maintainer's machine; CI is single-tenant but we keep the same port for parity).
+const PORT = 3001;
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
