@@ -3,6 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Color } from "three";
 import { CameraRig } from "./camera/CameraRig";
+import { CameraController } from "./camera/CameraController";
 import { TimelineString } from "./TimelineString";
 import { TimelineItem } from "./TimelineItem";
 import { readCssToken } from "@/shared/styles/cssTokens";
@@ -36,6 +37,7 @@ export function Timeline() {
       onPointerMissed={() => setSelected(null)}
     >
       <CameraRig />
+      <CameraController />
       <TimelineString />
       {liuBangCorpus.events.map((event) => (
         <TimelineItem key={event.id} event={event} />

@@ -2,23 +2,24 @@
 
 import { OrthographicCamera } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { TIMELINE_VIEWPORT_WORLD_WIDTH } from "@/shared/constants/timeline";
 import { useCameraStore } from "@/state/cameraStore";
 
 /**
- * Orthographic camera. Initial framing: centred on the first event's
- * world-x (plan §1.2 — "first event at middle in the beginning"). The
- * camera position tracks `useCameraStore.cameraX`; Phase 8's wheel +
- * drag handlers call `setCameraX` to pan.
+ * Orthographic camera bound to `useCameraStore`. Both pan (`cameraX`) and
+ * zoom (`viewportWorldWidth`) react to store changes:
+ *  - User wheel + drag handlers (Phase 8 `useTimelineCamera`) write store
+ *    values directly for immediate response.
+ *  - Granularity transitions (toggle click, wheel-stop snap) animate
+ *    `viewportWorldWidth` via the spring in `<CameraController>`.
  *
- * Zoom is derived from the canvas pixel width: an ortho camera at zoom Z
- * shows `canvasWidth / Z` world units across the viewport. We pin that to
- * `TIMELINE_VIEWPORT_WORLD_WIDTH`.
+ * Three.js zoom = canvas pixel width / viewportWorldWidth. Smaller world
+ * width = larger zoom value = more zoomed in.
  */
 export function CameraRig() {
-  const width = useThree((state) => state.size.width);
+  const canvasWidth = useThree((state) => state.size.width);
   const cameraX = useCameraStore((s) => s.cameraX);
-  const zoom = width / TIMELINE_VIEWPORT_WORLD_WIDTH;
+  const viewportWorldWidth = useCameraStore((s) => s.viewportWorldWidth);
+  const zoom = canvasWidth / viewportWorldWidth;
 
   return (
     <OrthographicCamera makeDefault position={[cameraX, 0, 10]} zoom={zoom} near={0.1} far={100} />

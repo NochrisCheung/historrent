@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 7 complete (2026-05-05) — curve sign-off (4.5/0.45/2.0/0.73), Option A camera framing on first event with cameraStore, hover-only labels (name above, date below), unified LXGW WenKai TC content font. 81 unit + 15 E2E green. Phase 8 (pan/zoom UI) unblocked.
+**status:** Phase 8 complete (2026-05-05) — pan/zoom UI shipped: cursor-anchored wheel zoom, drag pan, year/month/day ZoomToggle with rAF spring snap-easing, 220ms wheel-stop snap-to-granularity. 100 unit + 19 E2E green. Phase 9 (AI synthesis) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -748,17 +748,17 @@ The empty stage. No content yet.
 
 ### Phase 8 — Pan and zoom
 
-| #   | Status  | Task                                                                                                                                                                                                 |
-| --- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 8.1 | 🔴 TODO | **`src/components/canvas/camera/useTimelineCamera.ts`** — listens to wheel + drag.                                                                                                                   |
-| 8.2 | 🔴 TODO | Wheel = zoom (around cursor). Drag (left mouse held) = pan. Trackpad two-finger pan = pan.                                                                                                           |
-| 8.3 | 🔴 TODO | Zoom levels are _snapped_ to year/month/day discrete granularities, but the _visual transition_ between them is continuous (camera zoom value eases between snapped target values via react-spring). |
-| 8.4 | 🔴 TODO | At year zoom: the whole life fits, all 40+ events visible. At month zoom: ~5 years fit; events outside viewport are culled. At day zoom: ~3 months fit.                                              |
-| 8.5 | 🔴 TODO | **`src/components/ui/ZoomToggle.tsx`** — three-segment selector (年/月/日). Clicking eases the camera to that level.                                                                                 |
-| 8.6 | 🔴 TODO | Scrollwheel zooming snaps to nearest level when wheel stops (small delay, eases there).                                                                                                              |
-| 8.7 | 🔴 TODO | **E2E** — pan via drag, zoom via wheel and via toggle; all behave smoothly.                                                                                                                          |
+| #   | Status  | Task                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| --- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 8.1 | 🟢 DONE | **`src/components/canvas/camera/useTimelineCamera.ts`** — DOM `wheel` + `mousedown`/`mousemove`/`mouseup` listeners. Pure-math helpers extracted to `cameraMath.ts` for unit testability.                                                                                                                                                                                                                                     |
+| 8.2 | 🟢 DONE | Wheel deltaY = cursor-anchored zoom (world point under cursor stays pinned). Trackpad horizontal swipe (`\|deltaX\| > \|deltaY\|`) = pan. Left-mouse drag = pan. `cursor: grabbing` while dragging.                                                                                                                                                                                                                           |
+| 8.3 | 🟢 DONE | `viewportWorldWidth` is the canonical zoom; granularity is the snapped state. `<CameraController>` runs a tiny rAF spring (stiffness 170 / damping 26 / mass 1) that eases `viewportWorldWidth` toward `GRANULARITY_WIDTHS[granularity]` whenever granularity changes (toggle click or wheel-stop snap). Spring writes each tick to `cameraStore` and calls `invalidate()`, keeping us `frameloop="demand"`-compatible.       |
+| 8.4 | 🟢 DONE | Year-width 12 (full lifespan + margin) → month-width 0.82 (~5 years) → day-width 0.041 (~3 months). Wheel zoom is clamped to `[day/2, year×2]` so the user can't lose the timeline. Off-viewport events fall behind the curve's alpha-falloff envelope rather than being explicitly culled.                                                                                                                                   |
+| 8.5 | 🟢 DONE | **`src/components/ui/ZoomToggle.tsx`** — bottom-centre 年/月/日 segmented selector. Sets `granularity` on `cameraStore`; `<CameraController>` springs to the matching width. i18n strings added under `zoomToggle.{year,month,day,ariaLabel}` for both Hans and Hant.                                                                                                                                                         |
+| 8.6 | 🟢 DONE | Wheel handler debounces a 220ms snap timer that resets on every wheel tick. After 220ms of quiet it reads `viewportWorldWidth`, calls `snapToGranularity` (closest match in log-space across the 3 levels), and `setGranularity(...)`. The granularity change re-runs `<CameraController>`'s effect, easing the viewport from its current free-form width to the snapped target.                                              |
+| 8.7 | 🟢 DONE | **E2E `tests/e2e/zoom.spec.ts`**: ZoomToggle click animates `viewportWorldWidth` to month-width; rightward mouse drag decreases `cameraX` (canvas pans left); negative wheel deltaY shrinks `viewportWorldWidth`; sustained wheel zoom triggers snap (granularity ≠ "year" after 220ms quiet). All four pass plus the prior 15 — 19/19 green. Unit tests cover `cameraMath.*` (cursor-anchored math) and `snapToGranularity`. |
 
-**Acceptance:** Pan and zoom feel native and never drop below 60fps on the maintainer's laptop. Year/month/day transitions are visibly continuous, not jumpy.
+**Acceptance:** Pan and zoom feel native and never drop below 60fps on the maintainer's laptop. Year/month/day transitions are visibly continuous, not jumpy. **Outcome:** wheel + drag + toggle all responsive, snap eases instead of jumping, no console errors. Lint, typecheck, build, 100 unit tests, 19 E2E tests all green.
 
 ### Phase 9 — AI source synthesis (route handler + UI)
 

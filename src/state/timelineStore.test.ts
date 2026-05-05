@@ -6,11 +6,10 @@ describe("useTimelineStore", () => {
     useTimelineStore.getState().reset();
   });
 
-  it("starts with no hover, no selection, zoom=year", () => {
+  it("starts with no hover and no selection", () => {
     const s = useTimelineStore.getState();
     expect(s.hoveredId).toBeNull();
     expect(s.selectedId).toBeNull();
-    expect(s.zoom).toBe("year");
   });
 
   it("setHovered updates only hoveredId", () => {
@@ -33,21 +32,14 @@ describe("useTimelineStore", () => {
     expect(s.hoveredId).toBeNull();
   });
 
-  it("setZoom updates only zoom", () => {
-    useTimelineStore.getState().setZoom("month");
-    expect(useTimelineStore.getState().zoom).toBe("month");
-  });
-
   it("reset returns to initial state", () => {
     const s = useTimelineStore.getState();
     s.setHovered("a");
     s.setSelected("b");
-    s.setZoom("day");
     s.reset();
     const after = useTimelineStore.getState();
     expect(after.hoveredId).toBeNull();
     expect(after.selectedId).toBeNull();
-    expect(after.zoom).toBe("year");
   });
 
   it("exposes itself on window for E2E", () => {

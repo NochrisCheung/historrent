@@ -1,6 +1,7 @@
 import { Timeline } from "@/components/canvas/Timeline";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { ZoomToggle } from "@/components/ui/ZoomToggle";
 import { CurveTuner } from "@/components/canvas/CurveTuner";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -14,6 +15,7 @@ export default function Home() {
     <main style={{ width: "100vw", height: "100vh", position: "relative" }}>
       <Timeline />
       <LanguageToggle />
+      <ZoomToggle />
       <DetailPanel />
       {showTuner && <CurveTuner />}
     </main>

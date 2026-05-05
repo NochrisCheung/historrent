@@ -1,0 +1,37 @@
+.toggle {
+  position: fixed;
+  bottom: var(--s-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: inline-flex;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 2px;
+  box-shadow: 0 1px 3px rgba(61, 59, 79, 0.05);
+  font-family: var(--font-chrome);
+}
+
+.option {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: var(--s-1) var(--s-3);
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-muted);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.option:hover {
+  color: var(--ink);
+}
+
+.option[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--canvas-bg);
+}

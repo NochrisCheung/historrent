@@ -4,6 +4,12 @@
     "simplified": "簡",
     "traditional": "繁"
   },
+  "zoomToggle": {
+    "ariaLabel": "切換縮放粒度",
+    "year": "年",
+    "month": "月",
+    "day": "日"
+  },
   "panel": {
     "close": "關閉",
     "citations": "來源",
