@@ -53,13 +53,23 @@ async function panCameraToOrigin(page: Page) {
 async function hoverDot(page: Page, eventId: string) {
   // R3F's pointer raycast can miss if the mouse arrives on the same frame
   // that the canvas first paints. Move once to settle, then re-read the
-  // rect (drei's <Html> may have reprojected) and move again.
+  // rects (drei's <Html> may have reprojected) and move again.
+  //
+  // The dot itself is a WebGL primitive with no DOM. We anchor between
+  // the name (above) and date (below) labels: the dot's screen y is the
+  // midpoint of their centres, regardless of the Phase 8.5.10 lane
+  // stagger (both labels shift outward by the same lane offset).
   const settled = async () => {
     return page.evaluate((id) => {
-      const label = document.querySelector(`[data-event-date="${id}"]`);
-      if (!label) throw new Error(`No date label rendered for event "${id}"`);
-      const r = label.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top - 10 };
+      const name = document.querySelector(`[data-event-name="${id}"]`);
+      const date = document.querySelector(`[data-event-date="${id}"]`);
+      if (!name || !date) throw new Error(`No labels rendered for event "${id}"`);
+      const n = name.getBoundingClientRect();
+      const d = date.getBoundingClientRect();
+      return {
+        x: (n.left + n.right) / 2,
+        y: (n.top + n.bottom + d.top + d.bottom) / 4,
+      };
     }, eventId);
   };
   const first = await settled();

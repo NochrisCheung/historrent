@@ -1,14 +1,19 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
+import { useMemo } from "react";
 import { Color } from "three";
 import { CameraRig } from "./camera/CameraRig";
 import { CameraController } from "./camera/CameraController";
 import { TimelineString } from "./TimelineString";
 import { TimelineItem } from "./TimelineItem";
+import { computeLabelLanes } from "./labelPlacement";
+import { yearToWorld } from "./geometry/yearToWorld";
+import { centralYear } from "@/shared/date/centralYear";
 import { readCssToken } from "@/shared/styles/cssTokens";
 import { liuBangCorpus } from "@/data/liu_bang";
 import { useTimelineStore } from "@/state/timelineStore";
+import { useCameraStore } from "@/state/cameraStore";
 
 const FALLBACK_BG = "#FBFCFD"; // Matches --canvas-bg in tokens.css.
 
@@ -39,9 +44,38 @@ export function Timeline() {
       <CameraRig />
       <CameraController />
       <TimelineString />
-      {liuBangCorpus.events.map((event) => (
-        <TimelineItem key={event.id} event={event} />
-      ))}
+      <EventDots />
     </Canvas>
+  );
+}
+
+/**
+ * Inner component (lives inside `<Canvas>`) so it can read the canvas
+ * width via `useThree`. Computes label lanes once per render and passes
+ * the lane index to each `<TimelineItem>` (Phase 8.5.10) so always-on
+ * labels in dense clusters auto-stagger vertically.
+ */
+function EventDots() {
+  const cameraX = useCameraStore((s) => s.cameraX);
+  const viewportWorldWidth = useCameraStore((s) => s.viewportWorldWidth);
+  const canvasWidth = useThree((s) => s.size.width);
+
+  const placements = useMemo(
+    () =>
+      liuBangCorpus.events.map((event) => ({
+        id: event.id,
+        originalX: yearToWorld(centralYear(event.date)),
+      })),
+    [],
+  );
+
+  const lanes = computeLabelLanes(placements, cameraX, viewportWorldWidth, canvasWidth);
+
+  return (
+    <>
+      {liuBangCorpus.events.map((event) => (
+        <TimelineItem key={event.id} event={event} lane={lanes[event.id] ?? 0} />
+      ))}
+    </>
   );
 }

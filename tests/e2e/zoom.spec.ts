@@ -147,6 +147,53 @@ test.describe("Pan/zoom controller", () => {
   });
 });
 
+test.describe("Label lane placement (Phase 8.5.10)", () => {
+  test("right-cluster name labels do not overlap after pan to the cluster centre", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.locator("canvas").first().waitFor({ state: "visible" });
+    await page.waitForTimeout(200);
+
+    // Pan to the right cluster (start-of-uprising at ~3.45 → death at 5.0).
+    // cameraX = 4 puts the cluster around the canvas centre.
+    await page.evaluate(() => {
+      const cam = (
+        window as unknown as {
+          __historrentCameraStore?: { setState: (s: { cameraX: number }) => void };
+        }
+      ).__historrentCameraStore;
+      if (!cam) throw new Error("__historrentCameraStore not exposed");
+      cam.setState({ cameraX: 4 });
+    });
+    // Let the drei <Html> overlays reproject after the pan.
+    await page.waitForTimeout(100);
+
+    const overlapping = await page.evaluate(() => {
+      const labels = Array.from(document.querySelectorAll("[data-event-name]")) as HTMLElement[];
+      const visible = labels
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.right > 0 && r.left < window.innerWidth && r.width > 0);
+      const overlaps: string[] = [];
+      for (let i = 0; i < visible.length; i++) {
+        for (let j = i + 1; j < visible.length; j++) {
+          const a = visible[i]!;
+          const b = visible[j]!;
+          const xOverlap = a.left < b.right && b.left < a.right;
+          const yOverlap = a.top < b.bottom && b.top < a.bottom;
+          if (xOverlap && yOverlap) {
+            overlaps.push(`pair ${i}-${j}`);
+          }
+        }
+      }
+      return { count: visible.length, overlaps };
+    });
+
+    expect(overlapping.count).toBeGreaterThan(1); // sanity: cluster is on-screen
+    expect(overlapping.overlaps).toEqual([]);
+  });
+});
+
 test.describe("Interval legend", () => {
   test("renders the year-zoom label by default and switches when granularity changes", async ({
     page,

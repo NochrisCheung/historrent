@@ -31,11 +31,20 @@ async function readUiStore(page: Page): Promise<StoreSnapshot> {
 }
 
 async function hoverDot(page: Page, eventId: string) {
+  // The dot is a WebGL primitive with no DOM. We compute its screen
+  // position as the midpoint between the name (above) and date (below)
+  // labels — robust to Phase 8.5.10 lane stagger which shifts both
+  // labels outward by the same lane offset.
   const target = await page.evaluate((id) => {
-    const label = document.querySelector(`[data-event-date="${id}"]`);
-    if (!label) throw new Error(`No date label rendered for event "${id}"`);
-    const r = label.getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top - 10 };
+    const name = document.querySelector(`[data-event-name="${id}"]`);
+    const date = document.querySelector(`[data-event-date="${id}"]`);
+    if (!name || !date) throw new Error(`No labels rendered for event "${id}"`);
+    const n = name.getBoundingClientRect();
+    const d = date.getBoundingClientRect();
+    return {
+      x: (n.left + n.right) / 2,
+      y: (n.top + n.bottom + d.top + d.bottom) / 4,
+    };
   }, eventId);
   await page.mouse.move(target.x, target.y);
 }

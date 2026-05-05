@@ -3,7 +3,7 @@
 import { Html } from "@react-three/drei";
 import { useSpring } from "@react-spring/three";
 import { useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Color, type Mesh, type MeshBasicMaterial } from "three";
 import { useTimelineStore } from "@/state/timelineStore";
 import { useUiStore } from "@/state/uiStore";
@@ -24,43 +24,48 @@ const BASE_RADIUS = 0.04;
 const HOVER_SCALE = 1.5; // 0.04 → 0.06 effective radius
 const SPRING_CONFIG = { mass: 1, tension: 240, friction: 24 };
 
+/**
+ * Per-lane vertical step in CSS pixels. Lane 0 = default position, lane
+ * n = `n × LANE_STEP_PX` further from the dot. Sized to clear the
+ * label's own height (~16 px) plus a small gap.
+ */
+const LANE_STEP_PX = 22;
+
 interface TimelineItemProps {
   event: TLiuBangEvent;
+  /**
+   * Stagger lane assigned by `computeLabelLanes` — 0 = sit at the
+   * default position; higher = push the labels (name above, date below)
+   * outward in pixel space so adjacent events' labels don't overlap.
+   */
+  lane: number;
 }
 
 /**
- * One event on the timeline: a small circular mesh sitting just above the
- * string, with DOM-text labels above (name) and below (date).
+ * One event on the timeline: a small circular mesh sitting on the
+ * curved string, with DOM-text labels above (name) and below (date).
  *
- * Pixel-stable size (Phase 8.5.1): the dot's world radius is fixed but
- * Three.js ortho zoom (= canvas / viewport) blows it up at month/day
- * zoom. We multiply the mesh's scale by `viewportWorldWidth /
- * GRANULARITY_WIDTHS.year` to cancel the camera factor — dot stays ~5px
- * across at every zoom. The same factor scales the `<Html>` y-offsets
- * so the labels keep their pixel-pinned distance from the dot.
- *
- * The hover spring also drives a 1.0 → 1.5 multiplier on the mesh.
- * Both animation sources (hover + viewport) share `setScalar` via two
- * refs (`hoverScaleRef`, `viewportScaleRef`); each writer multiplies
- * them together, so the two animations compose without stale-closure
- * races. Group wrapper carries the world position so the inner mesh's
- * scale doesn't drag the sibling `<Html>` overlays into a pinhole.
+ * Phase 8.5.9 — events spread radially around `cameraX`. The camera no
+ * longer zooms with `viewportWorldWidth`; instead each event renders at
+ *   renderedX = cameraX + (originalX − cameraX) × eventScale
+ * where `eventScale = GRANULARITY_WIDTHS.year / viewportWorldWidth`.
+ * Year zoom = no stretch (eventScale 1); month ≈ 14.6×; day ≈ 292.7×.
+ * The string mesh is unchanged, so its curl/wobble shape is identical
+ * at every granularity. The y for the dot is `curveYAt(renderedX, …)`,
+ * so events near `cameraX` sit on the flat zone and events that have
+ * been stretched out into the curl tails ride the curl.
  *
  * Performance discipline (engineering-practices.md §1.1):
  *  - Subscribes to `hoveredId === event.id` via a Zustand selector with
  *    equality semantics — re-renders fire only when *that boolean* flips.
- *  - Hover animation calls `invalidate()` so the canvas re-renders for
- *    each spring tick — compatible with `frameloop="demand"`.
- *  - We use plain `<mesh>` (not `animated.mesh`) because some
- *    `@react-spring/three` versions miss `onPointerOver/Out/Click` events
- *    when the mesh is wrapped.
+ *  - Hover animation drives `mesh.scale` and the material's `color` via
+ *    react-spring/three; `onChange` calls `invalidate()` so the canvas
+ *    re-renders for each spring tick — `frameloop="demand"`-compatible.
  *
  * Z-order (plan §4 task 4.5):
  *  - Hovered mesh receives `renderOrder=1` so its dot draws over neighbours.
- *  - The label's `<Html>` overlay raises its `zIndex` so it stacks above
- *    other labels in the DOM.
  */
-export function TimelineItem({ event }: TimelineItemProps) {
+export function TimelineItem({ event, lane }: TimelineItemProps) {
   const isHovered = useTimelineStore((s) => s.hoveredId === event.id);
   const setHovered = useTimelineStore((s) => s.setHovered);
   const setSelected = useTimelineStore((s) => s.setSelected);
@@ -68,23 +73,24 @@ export function TimelineItem({ event }: TimelineItemProps) {
 
   const invalidate = useThree((s) => s.invalidate);
 
-  const x = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
-  // Item rides the curve at its world-x. Selectors keep re-renders narrow:
-  // the item only re-positions when the curve uniforms change.
-  const uCurveCenter = useCameraStore((s) => s.cameraX);
+  const originalX = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
+  const cameraX = useCameraStore((s) => s.cameraX);
   const viewportWorldWidth = useCameraStore((s) => s.viewportWorldWidth);
   const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
   const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
   const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
   const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
-  const y = curveYAt(x, {
-    uCurveCenter,
+
+  const eventScale = GRANULARITY_WIDTHS.year / viewportWorldWidth;
+  const renderedX = cameraX + (originalX - cameraX) * eventScale;
+  const y = curveYAt(renderedX, {
+    uCurveCenter: cameraX,
     uCenterFlatHalfWidth,
     uCurveAmount,
     uCurveSharpness,
     uWobbleAmount,
   });
-  const viewportScale = viewportWorldWidth / GRANULARITY_WIDTHS.year;
+
   const yearLabel = useMemo(
     () => formatYear(centralYear(event.date), language),
     [event.date, language],
@@ -101,19 +107,6 @@ export function TimelineItem({ event }: TimelineItemProps) {
 
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshBasicMaterial>(null);
-  // The hover spring drives `hoverScaleRef`; viewport changes drive
-  // `viewportScaleRef`. Each writer multiplies them when calling
-  // `setScalar`, so both sources compose without stale-closure races.
-  const hoverScaleRef = useRef(1);
-  const viewportScaleRef = useRef(viewportScale);
-
-  useEffect(() => {
-    viewportScaleRef.current = viewportScale;
-    if (meshRef.current) {
-      meshRef.current.scale.setScalar(hoverScaleRef.current * viewportScale);
-    }
-    invalidate();
-  }, [viewportScale, invalidate]);
 
   useSpring({
     scale: isHovered ? HOVER_SCALE : 1,
@@ -122,24 +115,16 @@ export function TimelineItem({ event }: TimelineItemProps) {
     onChange: ({ value }) => {
       const scale = value.scale as number;
       const mix = value.mix as number;
-      hoverScaleRef.current = scale;
-      if (meshRef.current) {
-        meshRef.current.scale.setScalar(scale * viewportScaleRef.current);
-      }
+      if (meshRef.current) meshRef.current.scale.setScalar(scale);
       if (materialRef.current) {
         materialRef.current.color.copy(colours.ink).lerp(colours.accent, mix);
       }
-      invalidate(); // Schedule one frame; idle when the spring settles.
+      invalidate();
     },
   });
 
-  // Pixel-pinned label distance from dot. The Html overlays project from
-  // world-space to screen, so multiplying their world y-offset by
-  // viewportScale keeps the screen distance constant across zooms.
-  const labelOffset = BASE_RADIUS * 4 * viewportScale;
-
   return (
-    <group position={[x, y, 0.01]}>
+    <group position={[renderedX, y, 0.01]}>
       <mesh
         ref={meshRef}
         renderOrder={isHovered ? 1 : 0}
@@ -164,23 +149,25 @@ export function TimelineItem({ event }: TimelineItemProps) {
       </mesh>
 
       {/*
-        Labels render permanently (Phase 8.5.7 user revision). At year zoom,
-        the four events on the right cluster (uprising → death) overlap
-        their name labels — accepted tradeoff for now; collision avoidance
-        / significance filtering is a follow-on iteration. Labels are
-        siblings (not children) of the dot mesh so the mesh's scale
-        doesn't pull them into a pinhole at month/day zoom (Phase 8.5.1).
+        Always-on labels (Phase 8.5.7). Lane stagger (Phase 8.5.10): the
+        Html overlay projects to the dot's screen position; we then
+        translateY each label by `lane × LANE_STEP_PX` pixels outward
+        (name up, date down) so dense clusters separate vertically. A
+        thin leader line at lane > 0 connects the label back toward the
+        dot so the user can still read which label belongs where.
       */}
-      {/* Event name — above the dot. */}
       <Html
-        position={[0, labelOffset, 0]}
+        position={[0, BASE_RADIUS * 4, 0]}
         center
         zIndexRange={[20, 0]}
         style={{ pointerEvents: "none", userSelect: "none" }}
       >
         <div
           data-event-name={event.id}
+          data-event-lane={lane}
           style={{
+            position: "relative",
+            transform: `translateY(${-lane * LANE_STEP_PX}px)`,
             fontFamily: "var(--font-content)",
             color: "var(--ink)",
             fontSize: 13,
@@ -189,12 +176,26 @@ export function TimelineItem({ event }: TimelineItemProps) {
           }}
         >
           {displayName}
+          {lane > 0 && (
+            <span
+              aria-hidden
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: "50%",
+                width: 1,
+                height: lane * LANE_STEP_PX,
+                background: "var(--ink-muted)",
+                opacity: 0.35,
+                transform: "translateX(-0.5px)",
+              }}
+            />
+          )}
         </div>
       </Html>
 
-      {/* Date — below the dot. */}
       <Html
-        position={[0, -labelOffset, 0]}
+        position={[0, -BASE_RADIUS * 4, 0]}
         center
         zIndexRange={[20, 0]}
         style={{ pointerEvents: "none", userSelect: "none" }}
@@ -202,6 +203,8 @@ export function TimelineItem({ event }: TimelineItemProps) {
         <div
           data-event-date={event.id}
           style={{
+            position: "relative",
+            transform: `translateY(${lane * LANE_STEP_PX}px)`,
             fontFamily: "var(--font-chrome)",
             color: "var(--ink-muted)",
             fontSize: 11,
@@ -209,6 +212,21 @@ export function TimelineItem({ event }: TimelineItemProps) {
           }}
         >
           {yearLabel}
+          {lane > 0 && (
+            <span
+              aria-hidden
+              style={{
+                position: "absolute",
+                bottom: "100%",
+                left: "50%",
+                width: 1,
+                height: lane * LANE_STEP_PX,
+                background: "var(--ink-muted)",
+                opacity: 0.35,
+                transform: "translateX(-0.5px)",
+              }}
+            />
+          )}
         </div>
       </Html>
     </group>
