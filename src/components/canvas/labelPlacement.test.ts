@@ -20,11 +20,15 @@ describe("computeLabelLanes", () => {
   it("promotes overlapping events to higher lanes and recycles lane 0 when distance allows", () => {
     // 4 events at year zoom. Pixel positions (CANVAS=1280, viewport=12):
     // a@-0.5 → 586.7, b@-0.166 → 622.3, c@+0.166 → 657.7, d@+0.5 → 693.3.
-    // a→b/b→c/c→d are ~36 px apart, but a→d is ~106.7 px (≥ 90 px), so:
+    // All adjacent gaps are ~35 px (< threshold 90) so {a, b, c, d} is
+    // one cluster (Phase 8.5.13). Cluster walk: leftmost (a) first,
+    // then rest right-to-left (d, c, b):
     //   a → lane 0
-    //   b → lane 1 (lane 0 still occupied by a within threshold)
-    //   c → lane 2 (lanes 0 & 1 still within threshold)
-    //   d → lane 0 recycles (a's 586.7 is now 106.7 px away, past threshold)
+    //   d → lane 0 (107 px from a, past threshold)
+    //   c → lane 1 (35.6 from d on 0; 71 from a on 0 — conflict)
+    //   b → lane 2 (35.6 from a on 0; 35.4 from c on 1 — conflict)
+    // Reading left-to-right the assignment is the arch {0, 2, 1, 0} —
+    // both ends low, peak at b in the middle.
     const events = [
       { id: "a", originalX: -0.5 },
       { id: "b", originalX: -0.166 },
@@ -32,25 +36,31 @@ describe("computeLabelLanes", () => {
       { id: "d", originalX: 0.5 },
     ];
     const lanes = computeLabelLanes(events, 0, GRANULARITY_WIDTHS.year, CANVAS);
-    expect(lanes).toEqual({ a: 0, b: 1, c: 2, d: 0 });
+    expect(lanes).toEqual({ a: 0, b: 2, c: 1, d: 0 });
   });
 
-  it("handles a tightly-packed cluster with three lanes", () => {
-    // Three events within ~50 px on screen — all under threshold, no
-    // recycling possible. Expect lanes 0, 1, 2.
+  it("handles a tightly-packed 3-clique with an arch shape", () => {
+    // Three events within ~50 px on screen — all pairwise conflicting,
+    // 3 distinct lanes required (graph-coloring lower bound). Cluster
+    // walk: leftmost (a) → 0; then right-to-left of the rest: c → 1
+    // (vs a 42.8 < 90, conflict on 0); b → 2 (vs both, conflict on 0
+    // and 1). Reading left-to-right: {0, 2, 1} — leftmost low, peak
+    // at b in the middle, rightmost at 1.
     const events = [
       { id: "a", originalX: -0.2 },
       { id: "b", originalX: 0 },
       { id: "c", originalX: 0.2 },
     ];
     const lanes = computeLabelLanes(events, 0, GRANULARITY_WIDTHS.year, CANVAS);
-    expect(lanes).toEqual({ a: 0, b: 1, c: 2 });
+    expect(lanes).toEqual({ a: 0, b: 2, c: 1 });
   });
 
   it("recycles lanes when subsequent events leave the threshold window", () => {
     // Two clusters separated by enough gap that the second cluster can
-    // re-use lane 0. Cluster A at the left (~screen-x 100–200), Cluster B
-    // at the right (~screen-x 1000+). Within each cluster events overlap.
+    // re-use lane 0. Cluster-based walk (Phase 8.5.13): each cluster's
+    // leftmost is placed first at lane 0; the right-to-left rest of a
+    // 2-element cluster is just the right one, which conflicts and goes
+    // to lane 1. Cluster A at screen-x ~107/150, Cluster B at ~1067/1110.
     const events = [
       { id: "a1", originalX: -5 },
       { id: "a2", originalX: -4.6 },
@@ -58,12 +68,9 @@ describe("computeLabelLanes", () => {
       { id: "b2", originalX: 4.4 },
     ];
     const lanes = computeLabelLanes(events, 0, GRANULARITY_WIDTHS.year, CANVAS);
-    expect(lanes.a1).toBe(0);
+    expect(lanes.a1).toBe(0); // leftmost of cluster A
     expect(lanes.a2).toBe(1);
-    // Second cluster: with 0.4 wu = ~43 px gap (< threshold), b2 must
-    // bump to lane 1; but b1 should hit lane 0 since the previous
-    // lane-0 occupant (a1) is far away.
-    expect(lanes.b1).toBe(0);
+    expect(lanes.b1).toBe(0); // leftmost of cluster B
     expect(lanes.b2).toBe(1);
   });
 
