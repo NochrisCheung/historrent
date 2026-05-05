@@ -8,6 +8,7 @@ import { Color, type Mesh, type MeshBasicMaterial } from "three";
 import { useTimelineStore } from "@/state/timelineStore";
 import { useUiStore } from "@/state/uiStore";
 import { useCurveStore } from "@/state/curveStore";
+import { useCameraStore } from "@/state/cameraStore";
 import { yearToWorld } from "./geometry/yearToWorld";
 import { curveYAt } from "./geometry/curve";
 import { centralYear } from "@/shared/date/centralYear";
@@ -57,11 +58,19 @@ export function TimelineItem({ event }: TimelineItemProps) {
 
   const x = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
   // Item rides the curve at its world-x. Selectors keep re-renders narrow:
-  // the item only re-mounts/re-positions when the curve uniforms change.
+  // the item only re-positions when the curve uniforms change.
+  const uCurveCenter = useCameraStore((s) => s.cameraX);
   const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
   const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
   const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
-  const y = curveYAt(x, { uCenterFlatHalfWidth, uCurveAmount, uCurveSharpness });
+  const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
+  const y = curveYAt(x, {
+    uCurveCenter,
+    uCenterFlatHalfWidth,
+    uCurveAmount,
+    uCurveSharpness,
+    uWobbleAmount,
+  });
   const yearLabel = useMemo(
     () => formatYear(centralYear(event.date), language),
     [event.date, language],
@@ -118,30 +127,57 @@ export function TimelineItem({ event }: TimelineItemProps) {
       <circleGeometry args={[BASE_RADIUS, 32]} />
       <meshBasicMaterial ref={materialRef} color={colours.ink} />
 
+      {/*
+        Labels are hidden at rest and revealed on hover.
+        At year-zoom Liu Bang's middle four events cluster within ~0.3 world
+        units (a few dozen pixels) so always-on labels overlap. Per
+        engineering-practices.md §1.1.5 ("Label de-clustering at scale") we
+        drop them by default and let hover reveal one at a time. Phase 8's
+        zoom levels and Phase 1.5's significance filter restore some
+        always-on visibility.
+      */}
+      {/* Event name — above the dot. */}
       <Html
-        position={[0, -BASE_RADIUS * 4, 0]}
+        position={[0, BASE_RADIUS * 4, 0]}
         center
         zIndexRange={[20, 0]}
-        style={{
-          pointerEvents: "none",
-          userSelect: "none",
-        }}
+        style={{ pointerEvents: "none", userSelect: "none" }}
       >
         <div
-          data-event-label={event.id}
+          data-event-name={event.id}
           style={{
             fontFamily: "var(--font-content)",
             color: "var(--ink)",
-            fontSize: 12,
+            fontSize: 13,
+            fontWeight: 500,
             whiteSpace: "nowrap",
-            opacity: isHovered ? 1 : 0.75,
+            opacity: isHovered ? 1 : 0,
             transition: "opacity var(--dur-fast) var(--ease)",
           }}
         >
           {displayName}
-          <span style={{ color: "var(--ink-muted)", marginLeft: 6, fontSize: 11 }}>
-            {yearLabel}
-          </span>
+        </div>
+      </Html>
+
+      {/* Date — below the dot. */}
+      <Html
+        position={[0, -BASE_RADIUS * 4, 0]}
+        center
+        zIndexRange={[20, 0]}
+        style={{ pointerEvents: "none", userSelect: "none" }}
+      >
+        <div
+          data-event-date={event.id}
+          style={{
+            fontFamily: "var(--font-chrome)",
+            color: "var(--ink-muted)",
+            fontSize: 11,
+            whiteSpace: "nowrap",
+            opacity: isHovered ? 1 : 0,
+            transition: "opacity var(--dur-fast) var(--ease)",
+          }}
+        >
+          {yearLabel}
         </div>
       </Html>
     </mesh>

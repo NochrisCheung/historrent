@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 7 infrastructure complete (2026-05-05) — vertex/fragment shaders, curveStore, dev-only Leva tuner, items ride the curve. 74 unit + 15 E2E green. Phase 7.5 (visual curve sign-off) and Phase 8 (pan/zoom) await user input.
+**status:** Phase 7 complete (2026-05-05) — curve sign-off (4.5/0.45/2.0/0.73), Option A camera framing on first event with cameraStore, hover-only labels (name above, date below), unified LXGW WenKai TC content font. 81 unit + 15 E2E green. Phase 8 (pan/zoom UI) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -733,16 +733,16 @@ The empty stage. No content yet.
 
 ### Phase 7 — Curve shader (visual iteration with the user)
 
-| #    | Status    | Task                                                                                                                                                                                                                                              |
-| ---- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 7.1  | 🟢 DONE   | **`src/components/canvas/shaders/curveVertex.glsl`** — placeholder formulation from §3.5.                                                                                                                                                         |
-| 7.2  | 🟢 DONE   | **`src/components/canvas/shaders/curveFragment.glsl`** — colour by `--line`, slight alpha falloff toward edges (`vUv.x` distance from centre).                                                                                                    |
-| 7.2a | 🟢 DONE   | **Configure Turbopack to import `.glsl`/`.vert`/`.frag` as raw strings.** In `next.config.ts`, populate the `turbopack.rules` block with a raw-text rule for these extensions. Verify with a build that the imported string is the file contents. |
-| 7.3  | 🟢 DONE   | **Replace flat plane** in `TimelineString.tsx` with `<shaderMaterial>` using these shaders. Subdivide the plane geometry (~64 segments) so the vertex shader has vertices to bend.                                                                |
-| 7.4  | 🟢 DONE   | **Leva panel (dev only)** with sliders for `uCenterFlatHalfWidth`, `uCurveAmount`, `uCurveSharpness`, alpha-falloff start/end.                                                                                                                    |
-| 7.5  | 🔁 REVIEW | **Visual iteration with user.** Several rounds. Lock values into `tokens.css` once user signs off. ⏸️ Blocks acceptance until user signs off.                                                                                                     |
-| 7.6  | 🟢 DONE   | **`src/components/canvas/geometry/curve.ts`** — pure function `curveYAt(x, uniforms)` that mirrors the vertex shader's displacement math. Items use this to "ride" the curve (their y position is curved alongside the string).                   |
-| 7.7  | 🟢 DONE   | **`src/components/canvas/geometry/curve.test.ts`** — given world-x and uniform values, returns expected y-displacement. Tests at the central flat zone, the curl-onset boundary, and the deep-curl extremes.                                      |
+| #    | Status  | Task                                                                                                                                                                                                                                              |
+| ---- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 7.1  | 🟢 DONE | **`src/components/canvas/shaders/curveVertex.glsl`** — placeholder formulation from §3.5.                                                                                                                                                         |
+| 7.2  | 🟢 DONE | **`src/components/canvas/shaders/curveFragment.glsl`** — colour by `--line`, slight alpha falloff toward edges (`vUv.x` distance from centre).                                                                                                    |
+| 7.2a | 🟢 DONE | **Configure Turbopack to import `.glsl`/`.vert`/`.frag` as raw strings.** In `next.config.ts`, populate the `turbopack.rules` block with a raw-text rule for these extensions. Verify with a build that the imported string is the file contents. |
+| 7.3  | 🟢 DONE | **Replace flat plane** in `TimelineString.tsx` with `<shaderMaterial>` using these shaders. Subdivide the plane geometry (~64 segments) so the vertex shader has vertices to bend.                                                                |
+| 7.4  | 🟢 DONE | **Leva panel (dev only)** with sliders for `uCenterFlatHalfWidth`, `uCurveAmount`, `uCurveSharpness`, alpha-falloff start/end.                                                                                                                    |
+| 7.5  | 🟢 DONE | **Visual iteration with user.** Several rounds. Lock values into `tokens.css` once user signs off. ⏸️ Blocks acceptance until user signs off.                                                                                                     |
+| 7.6  | 🟢 DONE | **`src/components/canvas/geometry/curve.ts`** — pure function `curveYAt(x, uniforms)` that mirrors the vertex shader's displacement math. Items use this to "ride" the curve (their y position is curved alongside the string).                   |
+| 7.7  | 🟢 DONE | **`src/components/canvas/geometry/curve.test.ts`** — given world-x and uniform values, returns expected y-displacement. Tests at the central flat zone, the curl-onset boundary, and the deep-curl extremes.                                      |
 
 **Acceptance:** User has signed off on the curve shape. Items ride the curve correctly. The whole canvas reads as "loose string."
 

@@ -11,27 +11,63 @@ type StoreSnapshot = { hoveredId: string | null; selectedId: string | null };
 type StoreHandle = { getState: () => StoreSnapshot };
 
 /**
+ * Pan the camera to world-x = 0 so the whole lifespan is on-screen.
+ * The default framing centres on the first event (Liu Bang's birth) per
+ * Option A, which puts the later events off the right edge until Phase 8
+ * adds wheel/drag pan UI. For E2E coverage of all events, we move the
+ * camera programmatically via the test affordance on `window`.
+ */
+async function panCameraToOrigin(page: Page) {
+  await page.evaluate(() => {
+    const cam = (
+      window as unknown as {
+        __historrentCameraStore?: { setState: (s: { cameraX: number }) => void };
+      }
+    ).__historrentCameraStore;
+    if (!cam) throw new Error("__historrentCameraStore not exposed");
+    cam.setState({ cameraX: 0 });
+  });
+  // Wait for the resulting React re-render + drei <Html> reposition.
+  // We pin the imperial-accession date label to a known x-band: with cameraX = 0,
+  // its world-x ~3.85 projects to ~(canvas.width / 2 + 3.85 * canvas.width / 12)
+  // ≈ 50% + 32% = 82% from canvas-left. We just wait until its rect is on-screen.
+  // Wait until the date label has settled on-screen *and* its position is
+  // stable across two animation frames (drei <Html> re-projects in
+  // useFrame; readinging too early gives a stale rect).
+  await page.waitForFunction(() => {
+    const el = document.querySelector('[data-event-date="imperial-accession"]');
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return r.left > 0 && r.right < window.innerWidth;
+  });
+  await page.waitForTimeout(50);
+}
+
+/**
  * Move the cursor to the centre of the dot for the event with id `eventId`.
  *
- * The dot is a WebGL primitive (no DOM element of its own) but its sibling
- * `<Html>` label is a real DOM node tagged `data-event-label="${id}"`. The
- * label sits a small fixed distance below the dot in screen space; this
- * helper anchors off the label's bounding rect rather than recomputing the
- * camera projection.
+ * The dot is a WebGL primitive with no DOM of its own. We anchor off the
+ * date label (`[data-event-date]`), which is rendered just below the dot in
+ * screen space — empirically robust across canvas subpixel positioning.
  */
 async function hoverDot(page: Page, eventId: string) {
-  const target = await page.evaluate((id) => {
-    const label = document.querySelector(`[data-event-label="${id}"]`);
-    if (!label) throw new Error(`No label rendered for event "${id}"`);
-    const r = label.getBoundingClientRect();
-    return {
-      x: r.left + r.width / 2,
-      // Label is rendered ~10px below the dot at the default zoom.
-      y: r.top - 10,
-    };
-  }, eventId);
-  await page.mouse.move(target.x, target.y);
-  return target;
+  // R3F's pointer raycast can miss if the mouse arrives on the same frame
+  // that the canvas first paints. Move once to settle, then re-read the
+  // rect (drei's <Html> may have reprojected) and move again.
+  const settled = async () => {
+    return page.evaluate((id) => {
+      const label = document.querySelector(`[data-event-date="${id}"]`);
+      if (!label) throw new Error(`No date label rendered for event "${id}"`);
+      const r = label.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top - 10 };
+    }, eventId);
+  };
+  const first = await settled();
+  await page.mouse.move(first.x, first.y);
+  await page.waitForTimeout(40);
+  const second = await settled();
+  await page.mouse.move(second.x, second.y);
+  return second;
 }
 
 async function readStore(page: Page): Promise<StoreSnapshot> {
@@ -46,8 +82,8 @@ test.describe("Item interaction", () => {
   test("hover sets hoveredId; moving away clears it", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    // Wait for the labels to lay out before reading their positions.
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await hoverDot(page, "imperial-accession");
     await expect.poll(async () => (await readStore(page)).hoveredId).toBe("imperial-accession");
@@ -59,7 +95,8 @@ test.describe("Item interaction", () => {
   test("click sets selectedId; clicking a different item changes it", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await hoverDot(page, "imperial-accession");
     await expect.poll(async () => (await readStore(page)).hoveredId).toBe("imperial-accession");
@@ -74,13 +111,25 @@ test.describe("Item interaction", () => {
     await expect.poll(async () => (await readStore(page)).selectedId).toBe("hongmen-banquet");
   });
 
-  test("the event's name and year are rendered as a DOM label below the dot", async ({ page }) => {
+  test("event names render above the dot, dates below", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
 
-    const labels = page.locator("[data-event-label]");
-    await expect(labels).toHaveCount(5);
-    await expect(page.locator('[data-event-label="imperial-accession"]')).toContainText("即皇帝位");
-    await expect(page.locator('[data-event-label="imperial-accession"]')).toContainText("前202年");
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
+    await expect(page.locator("[data-event-date]")).toHaveCount(5);
+
+    await expect(page.locator('[data-event-name="imperial-accession"]')).toContainText("即皇帝位");
+    await expect(page.locator('[data-event-date="imperial-accession"]')).toContainText("前202年");
+
+    // The name DOM rect should sit above the date DOM rect for the same
+    // event — verify on `birth` because it's at the viewport centre at
+    // page load (Option A); other events project off-screen until Phase 8.
+    const positions = await page.evaluate((id) => {
+      const name = document.querySelector(`[data-event-name="${id}"]`)!.getBoundingClientRect();
+      const date = document.querySelector(`[data-event-date="${id}"]`)!.getBoundingClientRect();
+      return { nameTop: name.top, nameBottom: name.bottom, dateTop: date.top };
+    }, "birth");
+    expect(positions.nameBottom).toBeLessThan(positions.dateTop);
   });
 });

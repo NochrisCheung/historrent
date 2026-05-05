@@ -2,20 +2,36 @@
 
 import { useMemo } from "react";
 import { Color } from "three";
-import { TIMELINE_WORLD_HALF_WIDTH } from "@/shared/constants/timeline";
+import { TIMELINE_STRING_HALF_EXTENT } from "@/shared/constants/timeline";
 import { readCssToken } from "@/shared/styles/cssTokens";
 import { useCurveStore } from "@/state/curveStore";
+import { useCameraStore } from "@/state/cameraStore";
 import { curveVertexShader, curveFragmentShader, DEFAULT_FRAGMENT_UNIFORMS } from "./shaders";
 
 const FALLBACK_LINE = "#5d513c"; // matches --line in tokens.css.
-const STRING_WIDTH = 2 * TIMELINE_WORLD_HALF_WIDTH;
-const STRING_HEIGHT = STRING_WIDTH * 0.015;
+
+/**
+ * The string mesh extends well past the lifespan in both directions so the
+ * scarf-like curl/wave have room to develop into the off-viewport past and
+ * future. Width = 2 × TIMELINE_STRING_HALF_EXTENT.
+ */
+const STRING_WIDTH = 2 * TIMELINE_STRING_HALF_EXTENT;
+
+/**
+ * Thin string. Phase 11 visual review may revise; this default reads as a
+ * clean ~2px line at the camera's default zoom on a typical desktop.
+ */
+const STRING_HEIGHT = 0.02;
+
+/**
+ * Plane subdivisions along x. The vertex shader interpolates the wave/curl
+ * across these vertices, so we need enough density to keep the long string
+ * smooth without visible faceting at the curl tails.
+ */
+const STRING_SEGMENTS_X = 256;
 
 /**
  * The curved-string timeline.
- *
- * Geometry: a flat plane subdivided into 64 width segments so the vertex
- * shader has enough vertices to interpolate the curl smoothly.
  *
  * Reactivity: uniforms are sourced from `useCurveStore` each render. When
  * the store changes (Leva-driven during dev, locked in production) the
@@ -27,19 +43,22 @@ const STRING_HEIGHT = STRING_WIDTH * 0.015;
  * never conditionally. Item mounts/unmounts must not remount this string.
  */
 export function TimelineString() {
+  // Curve centre mirrors the camera so the curl always recedes at the
+  // viewport edges as the user pans (Phase 8).
+  const uCurveCenter = useCameraStore((s) => s.cameraX);
   const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
   const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
   const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
+  const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
 
   const lineColour = useMemo(() => new Color(readCssToken("--line", FALLBACK_LINE)), []);
 
-  // A fresh uniforms object per render keeps the shader values in sync with
-  // the store. `lineColour`, `vertexShader`, and `fragmentShader` are stable
-  // so Three.js doesn't recompile.
   const uniforms = {
+    uCurveCenter: { value: uCurveCenter },
     uCenterFlatHalfWidth: { value: uCenterFlatHalfWidth },
     uCurveAmount: { value: uCurveAmount },
     uCurveSharpness: { value: uCurveSharpness },
+    uWobbleAmount: { value: uWobbleAmount },
     uColor: { value: lineColour },
     uAlphaFalloffStart: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffStart },
     uAlphaFalloffEnd: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffEnd },
@@ -47,7 +66,7 @@ export function TimelineString() {
 
   return (
     <mesh position={[0, 0, 0]} renderOrder={0}>
-      <planeGeometry args={[STRING_WIDTH, STRING_HEIGHT, 64, 1]} />
+      <planeGeometry args={[STRING_WIDTH, STRING_HEIGHT, STRING_SEGMENTS_X, 1]} />
       <shaderMaterial
         vertexShader={curveVertexShader}
         fragmentShader={curveFragmentShader}

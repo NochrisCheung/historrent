@@ -13,20 +13,36 @@
  */
 
 export const curveVertexShader = /* glsl */ `
+  uniform float uCurveCenter;
   uniform float uCenterFlatHalfWidth;
   uniform float uCurveAmount;
   uniform float uCurveSharpness;
+  uniform float uWobbleAmount;
 
   varying vec2 vUv;
+
+  // Multi-frequency wave — must stay in lockstep with
+  // \`geometry/curve.ts#curveWave\`. Bounded |·| ≤ 1.0.
+  float curveWave(float x) {
+    return sin(x * 0.35) * 0.5
+         + sin(x * 0.85 + 1.3) * 0.3
+         + sin(x * 1.7 + 2.7) * 0.2;
+  }
 
   void main() {
     vUv = uv;
 
     vec3 displaced = position;
-    float xAbs = abs(position.x);
+    // The curl is centred at uCurveCenter (the camera target); xRel makes
+    // the held flat zone follow the camera as it pans (Phase 8).
+    float xRel = position.x - uCurveCenter;
+    float xAbs = abs(xRel);
     float beyondFlat = max(xAbs - uCenterFlatHalfWidth, 0.0);
-    float t = smoothstep(0.0, uCurveSharpness, beyondFlat);
-    displaced.y -= t * uCurveAmount;
+    float envelope = smoothstep(0.0, uCurveSharpness, beyondFlat);
+    float wave = curveWave(xRel);
+    // Both the drop and the wobble are gated by the envelope, so the held
+    // flat zone (beyondFlat == 0) is dead straight.
+    displaced.y += wave * envelope * uWobbleAmount - envelope * uCurveAmount;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
   }

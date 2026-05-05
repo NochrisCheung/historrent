@@ -13,15 +13,29 @@
 import { create } from "zustand";
 import { DEFAULT_CURVE_UNIFORMS, type CurveUniforms } from "@/components/canvas/geometry/curve";
 
-interface CurveState extends CurveUniforms {
-  setUniforms: (next: Partial<CurveUniforms>) => void;
+/**
+ * The curve's *shape* uniforms — everything except `uCurveCenter`, which
+ * mirrors `cameraStore.cameraX` and is combined in `TimelineString` /
+ * `TimelineItem` at render time.
+ */
+type CurveShape = Omit<CurveUniforms, "uCurveCenter">;
+
+interface CurveState extends CurveShape {
+  setUniforms: (next: Partial<CurveShape>) => void;
   reset: () => void;
 }
 
+const INITIAL_SHAPE: CurveShape = {
+  uCenterFlatHalfWidth: DEFAULT_CURVE_UNIFORMS.uCenterFlatHalfWidth,
+  uCurveAmount: DEFAULT_CURVE_UNIFORMS.uCurveAmount,
+  uCurveSharpness: DEFAULT_CURVE_UNIFORMS.uCurveSharpness,
+  uWobbleAmount: DEFAULT_CURVE_UNIFORMS.uWobbleAmount,
+};
+
 export const useCurveStore = create<CurveState>((set) => ({
-  ...DEFAULT_CURVE_UNIFORMS,
+  ...INITIAL_SHAPE,
   setUniforms: (next) => set(next),
-  reset: () => set(DEFAULT_CURVE_UNIFORMS),
+  reset: () => set(INITIAL_SHAPE),
 }));
 
 /** Test affordance, same pattern as the other stores. */

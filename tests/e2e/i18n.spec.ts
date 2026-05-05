@@ -3,6 +3,25 @@ import { test, expect, type Page } from "@playwright/test";
 type StoreSnapshot = { language: "zh-Hans" | "zh-Hant" };
 type StoreHandle = { getState: () => StoreSnapshot };
 
+async function panCameraToOrigin(page: Page) {
+  await page.evaluate(() => {
+    const cam = (
+      window as unknown as {
+        __historrentCameraStore?: { setState: (s: { cameraX: number }) => void };
+      }
+    ).__historrentCameraStore;
+    if (!cam) throw new Error("__historrentCameraStore not exposed");
+    cam.setState({ cameraX: 0 });
+  });
+  await page.waitForFunction(() => {
+    const el = document.querySelector('[data-event-date="imperial-accession"]');
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return r.left > 0 && r.right < window.innerWidth;
+  });
+  await page.waitForTimeout(50);
+}
+
 async function readUiStore(page: Page): Promise<StoreSnapshot> {
   return page.evaluate(() => {
     const store = (window as unknown as { __historrentUiStore?: StoreHandle }).__historrentUiStore;
@@ -13,8 +32,8 @@ async function readUiStore(page: Page): Promise<StoreSnapshot> {
 
 async function hoverDot(page: Page, eventId: string) {
   const target = await page.evaluate((id) => {
-    const label = document.querySelector(`[data-event-label="${id}"]`);
-    if (!label) throw new Error(`No label rendered for event "${id}"`);
+    const label = document.querySelector(`[data-event-date="${id}"]`);
+    if (!label) throw new Error(`No date label rendered for event "${id}"`);
     const r = label.getBoundingClientRect();
     return { x: r.left + r.width / 2, y: r.top - 10 };
   }, eventId);
@@ -31,29 +50,32 @@ test.describe("Language toggle", () => {
   test("default is Simplified (zh-Hans)", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     expect((await readUiStore(page)).language).toBe("zh-Hans");
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hans");
     // Simplified label for "imperial accession": 即皇帝位 (same in both scripts; check sibling)
-    await expect(page.locator('[data-event-label="enter-xianyang"]')).toContainText("攻入咸阳");
+    await expect(page.locator('[data-event-name="enter-xianyang"]')).toContainText("攻入咸阳");
   });
 
   test("clicking 繁 swaps event labels and html lang", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await page.getByTestId("language-toggle").getByRole("button", { name: "繁" }).click();
     await expect.poll(async () => (await readUiStore(page)).language).toBe("zh-Hant");
     await expect(page.locator("html")).toHaveAttribute("lang", "zh-Hant");
-    await expect(page.locator('[data-event-label="enter-xianyang"]')).toContainText("攻入咸陽");
+    await expect(page.locator('[data-event-name="enter-xianyang"]')).toContainText("攻入咸陽");
   });
 
   test("toggle propagates into the detail panel (UI strings + event name)", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await clickDot(page, "enter-xianyang");
     const panel = page.getByTestId("detail-panel");
@@ -73,7 +95,8 @@ test.describe("Language toggle", () => {
   test("citation link rewrites to /zhs in Hans, /zh in Hant", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await clickDot(page, "imperial-accession");
     const panel = page.getByTestId("detail-panel");
@@ -87,7 +110,8 @@ test.describe("Language toggle", () => {
   test("language preference persists across reload via sessionStorage", async ({ page }) => {
     await page.goto("/");
     await page.locator("canvas").first().waitFor({ state: "visible" });
-    await expect(page.locator("[data-event-label]")).toHaveCount(5);
+    await expect(page.locator("[data-event-name]")).toHaveCount(5);
+    await panCameraToOrigin(page);
 
     await page.getByTestId("language-toggle").getByRole("button", { name: "繁" }).click();
     await expect.poll(async () => (await readUiStore(page)).language).toBe("zh-Hant");

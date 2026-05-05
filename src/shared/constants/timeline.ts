@@ -20,6 +20,14 @@ export const LIU_BANG_LIFESPAN = LIU_BANG_DIED - LIU_BANG_BORN; // 61 years
 export const TIMELINE_WORLD_HALF_WIDTH = 5; // span runs from -5 to +5
 
 /**
+ * Half-extent of the rendered timeline string mesh. The string deliberately
+ * extends well beyond the lifespan (TIMELINE_WORLD_HALF_WIDTH) so the
+ * "flying-scarf" curl/wobble has room to develop into the off-viewport
+ * past and future without the string ending mid-frame.
+ */
+export const TIMELINE_STRING_HALF_EXTENT = 25;
+
+/**
  * Default-zoom margin: extra world units beyond the lifespan that the
  * viewport reveals on each side. Gives the curl room to settle into the
  * frame without the start/end events kissing the viewport edge.

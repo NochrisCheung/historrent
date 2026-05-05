@@ -19,12 +19,18 @@
   --accent: #bf242a; /* 朱砂 zhūshā — cinnabar */
   --accent-alt: #4a4266; /* 黛 dài — kohl indigo */
 
-  /* Type — fonts loaded via next/font/google in src/fonts/index.ts.
-     Defaults assume Simplified UI; the `[lang=...]` selectors below
-     swap the content stack for Traditional. */
-  --font-content: var(--font-noto-serif-sc), "Songti SC", serif;
+  /*
+   * Type — fonts loaded via `next/font/google` in `src/fonts/index.ts`.
+   *
+   * Per Phase 7.5 user preference, content uses LXGW WenKai TC in BOTH
+   * locales for a consistent typographic feel; Noto Serif SC sits in the
+   * fallback stack to render any Hans-specific glyphs that LXGW WenKai TC
+   * may lack. The chrome font (UI controls, dates) follows the active
+   * locale's Noto Sans variant via the `[lang=...]` selector below.
+   */
+  --font-content: var(--font-lxgw-wenkai-tc), var(--font-noto-serif-sc), "Songti SC", serif;
   --font-chrome: var(--font-noto-sans-sc), "PingFang SC", -apple-system, system-ui, sans-serif;
-  --font-quote: var(--font-noto-serif-sc), "Source Han Serif TC", "Songti SC", serif;
+  --font-quote: var(--font-lxgw-wenkai-tc), var(--font-noto-serif-sc), "Songti SC", serif;
 
   /* Spacing rhythm — 8px base */
   --s-1: 4px;
@@ -41,10 +47,11 @@
   --dur-slow: 400ms;
 }
 
-/* Traditional Chinese: prefer LXGW WenKai TC for content, Noto Sans TC for chrome.
-   Provider.tsx keeps `<html lang>` synced with the active locale. */
+/*
+ * Traditional Chinese: chrome flips to Noto Sans TC for the UI controls.
+ * `--font-content` stays LXGW WenKai TC across both locales (see above).
+ * Provider.tsx keeps `<html lang>` synced with the active locale.
+ */
 :root[lang="zh-Hant"] {
-  --font-content: var(--font-lxgw-wenkai-tc), "Source Han Serif TC", "Songti TC", serif;
   --font-chrome: var(--font-noto-sans-tc), "PingFang TC", -apple-system, system-ui, sans-serif;
-  --font-quote: var(--font-lxgw-wenkai-tc), "Source Han Serif TC", "Songti TC", serif;
 }

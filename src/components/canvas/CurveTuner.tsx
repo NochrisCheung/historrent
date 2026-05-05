@@ -26,7 +26,7 @@ export function CurveTuner() {
     uCenterFlatHalfWidth: {
       value: DEFAULT_CURVE_UNIFORMS.uCenterFlatHalfWidth,
       min: 0,
-      max: 5,
+      max: 15,
       step: 0.05,
       label: "flat half-width",
     },
@@ -39,10 +39,17 @@ export function CurveTuner() {
     },
     uCurveSharpness: {
       value: DEFAULT_CURVE_UNIFORMS.uCurveSharpness,
-      min: 0.25,
-      max: 5,
-      step: 0.05,
+      min: 1,
+      max: 20,
+      step: 0.1,
       label: "curl sharpness",
+    },
+    uWobbleAmount: {
+      value: DEFAULT_CURVE_UNIFORMS.uWobbleAmount,
+      min: 0,
+      max: 1.5,
+      step: 0.01,
+      label: "wobble (sides)",
     },
   });
 
