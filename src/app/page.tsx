@@ -1,5 +1,6 @@
 import { Timeline } from "@/components/canvas/Timeline";
 import { DetailPanel } from "@/components/ui/DetailPanel";
+import { IntervalLegend } from "@/components/ui/IntervalLegend";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { ZoomToggle } from "@/components/ui/ZoomToggle";
 import { CurveTuner } from "@/components/canvas/CurveTuner";
@@ -16,6 +17,7 @@ export default function Home() {
       <Timeline />
       <LanguageToggle />
       <ZoomToggle />
+      <IntervalLegend />
       <DetailPanel />
       {showTuner && <CurveTuner />}
     </main>

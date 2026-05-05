@@ -146,3 +146,28 @@ test.describe("Pan/zoom controller", () => {
       .not.toBe("year");
   });
 });
+
+test.describe("Interval legend", () => {
+  test("renders the year-zoom label by default and switches when granularity changes", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.locator("canvas").first().waitFor({ state: "visible" });
+    await page.waitForTimeout(200);
+    await resetCamera(page);
+
+    const legend = page.getByTestId("interval-legend");
+    await expect(legend).toBeVisible();
+    await expect(legend.locator("[data-legend-label]")).toHaveText("10 年");
+
+    // Click the month toggle; after the granularity flip the legend label
+    // updates immediately (the bar width animates via the spring snap).
+    await page.locator('[data-granularity="month"]').click();
+    await expect.poll(async () => (await readCamera(page)).granularity).toBe("month");
+    await expect(legend.locator("[data-legend-label]")).toHaveText("1 年");
+
+    await page.locator('[data-granularity="day"]').click();
+    await expect.poll(async () => (await readCamera(page)).granularity).toBe("day");
+    await expect(legend.locator("[data-legend-label]")).toHaveText("1 月");
+  });
+});

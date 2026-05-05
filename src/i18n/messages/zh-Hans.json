@@ -10,6 +10,9 @@
     "month": "月",
     "day": "日"
   },
+  "intervalLegend": {
+    "ariaLabel": "比例尺：{label}"
+  },
   "panel": {
     "close": "关闭",
     "citations": "来源",

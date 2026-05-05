@@ -5,7 +5,7 @@ import { Color } from "three";
 import { TIMELINE_STRING_HALF_EXTENT } from "@/shared/constants/timeline";
 import { readCssToken } from "@/shared/styles/cssTokens";
 import { useCurveStore } from "@/state/curveStore";
-import { useCameraStore } from "@/state/cameraStore";
+import { useCameraStore, GRANULARITY_WIDTHS } from "@/state/cameraStore";
 import { curveVertexShader, curveFragmentShader, DEFAULT_FRAGMENT_UNIFORMS } from "./shaders";
 
 const FALLBACK_LINE = "#5d513c"; // matches --line in tokens.css.
@@ -18,8 +18,11 @@ const FALLBACK_LINE = "#5d513c"; // matches --line in tokens.css.
 const STRING_WIDTH = 2 * TIMELINE_STRING_HALF_EXTENT;
 
 /**
- * Thin string. Phase 11 visual review may revise; this default reads as a
- * clean ~2px line at the camera's default zoom on a typical desktop.
+ * Thin string at year-zoom. The mesh's y-scale is multiplied by
+ * `viewportWorldWidth / GRANULARITY_WIDTHS.year` (Phase 8.5.1) so the line
+ * keeps a pixel-stable thickness at every zoom level — without that
+ * compensation, shrinking the viewport at month/day zoom would balloon
+ * this fixed world-unit height to dozens of screen pixels.
  */
 const STRING_HEIGHT = 0.02;
 
@@ -46,12 +49,19 @@ export function TimelineString() {
   // Curve centre mirrors the camera so the curl always recedes at the
   // viewport edges as the user pans (Phase 8).
   const uCurveCenter = useCameraStore((s) => s.cameraX);
+  const viewportWorldWidth = useCameraStore((s) => s.viewportWorldWidth);
   const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
   const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
   const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
   const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
 
   const lineColour = useMemo(() => new Color(readCssToken("--line", FALLBACK_LINE)), []);
+
+  // Pixel-stable thickness (Phase 8.5.1). Three.js ortho zoom is
+  // canvas/viewport, so a fixed-world-unit y stretches to giant pixel
+  // heights as the viewport narrows. Scaling the mesh.y by viewport/year-
+  // width cancels the camera-zoom factor on the y-axis.
+  const viewportScale = viewportWorldWidth / GRANULARITY_WIDTHS.year;
 
   const uniforms = {
     uCurveCenter: { value: uCurveCenter },
@@ -65,7 +75,7 @@ export function TimelineString() {
   };
 
   return (
-    <mesh position={[0, 0, 0]} renderOrder={0}>
+    <mesh position={[0, 0, 0]} renderOrder={0} scale={[1, viewportScale, 1]}>
       <planeGeometry args={[STRING_WIDTH, STRING_HEIGHT, STRING_SEGMENTS_X, 1]} />
       <shaderMaterial
         vertexShader={curveVertexShader}

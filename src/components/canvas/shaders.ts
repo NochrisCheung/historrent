@@ -33,13 +33,17 @@ export const curveVertexShader = /* glsl */ `
     vUv = uv;
 
     vec3 displaced = position;
-    // The curl is centred at uCurveCenter (the camera target); xRel makes
-    // the held flat zone follow the camera as it pans (Phase 8).
+    // The curl ENVELOPE is centred at uCurveCenter (the camera target); xRel
+    // makes the held flat zone follow the camera as it pans (Phase 8).
+    // The wave PHASE, by contrast, ties to absolute world-x (Phase 8.5.2),
+    // so the wobble pattern in the curl tails appears to scroll laterally
+    // as the user drags — providing a peripheral motion cue the user-facing
+    // pan would otherwise lack.
     float xRel = position.x - uCurveCenter;
     float xAbs = abs(xRel);
     float beyondFlat = max(xAbs - uCenterFlatHalfWidth, 0.0);
     float envelope = smoothstep(0.0, uCurveSharpness, beyondFlat);
-    float wave = curveWave(xRel);
+    float wave = curveWave(position.x);
     // Both the drop and the wobble are gated by the envelope, so the held
     // flat zone (beyondFlat == 0) is dead straight.
     displaced.y += wave * envelope * uWobbleAmount - envelope * uCurveAmount;

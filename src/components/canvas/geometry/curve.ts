@@ -73,10 +73,18 @@ export function curveWave(x: number): number {
 
 /**
  * Y-displacement at a given world-x for the supplied uniforms.
- * The curve is centred at `uCurveCenter` (set to the first event's world-x
- * at mount; tracks the camera in Phase 8). The held flat zone returns
- * exactly 0; past it, both the drop and the wobble are gated by the same
- * envelope so they fade in together.
+ *
+ * The envelope (where the flat zone is) is centred at `uCurveCenter` —
+ * tracks the camera so the held-flat centre always frames events at the
+ * viewport middle. The wave PHASE, however, uses the absolute world-x
+ * (Phase 8.5.2), so the wobble pattern at the curl tails scrolls
+ * laterally as the user drags — providing a peripheral motion cue
+ * during pan. Events that ride the curve experience a stable wave at
+ * their fixed world-x; the visible curl tails are the parts of the
+ * world that are sweeping past the (moving) envelope.
+ *
+ * The held flat zone returns exactly 0; past it, both the drop and the
+ * wobble are gated by the same envelope so they fade in together.
  * Negative = down; positive = up (the wave can swing either way).
  */
 export function curveYAt(x: number, u: CurveUniforms): number {
@@ -85,6 +93,6 @@ export function curveYAt(x: number, u: CurveUniforms): number {
   const beyondFlat = Math.max(xAbs - u.uCenterFlatHalfWidth, 0);
   if (beyondFlat === 0) return 0;
   const envelope = smoothstep(0, u.uCurveSharpness, beyondFlat);
-  const wave = curveWave(xRel);
+  const wave = curveWave(x);
   return wave * envelope * u.uWobbleAmount - envelope * u.uCurveAmount;
 }

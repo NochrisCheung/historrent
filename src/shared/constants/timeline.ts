@@ -20,6 +20,14 @@ export const LIU_BANG_LIFESPAN = LIU_BANG_DIED - LIU_BANG_BORN; // 61 years
 export const TIMELINE_WORLD_HALF_WIDTH = 5; // span runs from -5 to +5
 
 /**
+ * World units per calendar year. The lifespan (`LIU_BANG_LIFESPAN` years)
+ * spans `2 × TIMELINE_WORLD_HALF_WIDTH` world units, so one year is
+ * `(2 × half-width) / lifespan` world units. Used by the IntervalLegend
+ * to convert "n years" → world units → screen pixels.
+ */
+export const WORLD_PER_YEAR = (2 * TIMELINE_WORLD_HALF_WIDTH) / LIU_BANG_LIFESPAN;
+
+/**
  * Half-extent of the rendered timeline string mesh. The string deliberately
  * extends well beyond the lifespan (TIMELINE_WORLD_HALF_WIDTH) so the
  * "flying-scarf" curl/wobble has room to develop into the off-viewport

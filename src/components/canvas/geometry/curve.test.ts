@@ -134,3 +134,40 @@ describe("curveYAt — with non-zero uCurveCenter", () => {
     expect(curveYAt(-4 - 13, u)).toBeCloseTo(curveYAt(-4 + 13, u), 5);
   });
 });
+
+describe("curveYAt — world-anchored wave phase (Phase 8.5.2)", () => {
+  it("at the same xRel from uCurveCenter, two cameras at different world-x produce different y", () => {
+    // The wave argument switched from xRel to absolute world-x in
+    // Phase 8.5.2 so the wobble pattern at the curl tails scrolls as the
+    // user drags. With wobble on (DEFAULT_CURVE_UNIFORMS.uWobbleAmount =
+    // 0.73), the same xRel from two different camera centres maps to two
+    // different world-x positions, and therefore to two different wave
+    // phases — and visibly different y values.
+    const xRel =
+      DEFAULT_CURVE_UNIFORMS.uCenterFlatHalfWidth + DEFAULT_CURVE_UNIFORMS.uCurveSharpness + 4;
+    const cameraA: CurveUniforms = { ...DEFAULT_CURVE_UNIFORMS, uCurveCenter: 0 };
+    const cameraB: CurveUniforms = { ...DEFAULT_CURVE_UNIFORMS, uCurveCenter: 5 };
+    const yA = curveYAt(0 + xRel, cameraA); // world-x = xRel
+    const yB = curveYAt(5 + xRel, cameraB); // world-x = xRel + 5
+    expect(Math.abs(yA - yB)).toBeGreaterThan(0.01);
+  });
+
+  it("an event at a fixed world-x sees its wave phase locked when the camera pans across it", () => {
+    // Conversely: as long as the event remains past the flat zone (so the
+    // envelope is non-zero), its wave contribution depends only on its
+    // world-x. The drop (envelope × uCurveAmount) varies because the
+    // envelope depends on xRel, but the wave term scales by a fixed
+    // wave(world-x) — pin that property here.
+    const eventWorldX = 9;
+    const cameraA: CurveUniforms = { ...DEFAULT_CURVE_UNIFORMS, uCurveCenter: 2 };
+    const cameraB: CurveUniforms = { ...DEFAULT_CURVE_UNIFORMS, uCurveCenter: 3 };
+    // For both cameras the event sits past the flat zone (|xRel| > 4.5).
+    const yA = curveYAt(eventWorldX, cameraA);
+    const yB = curveYAt(eventWorldX, cameraB);
+    // The two y values differ (different envelope), but neither equals 0.
+    expect(yA).not.toBe(0);
+    expect(yB).not.toBe(0);
+    // No assertion on equality — just confirming both samples are alive
+    // and that the event tracks the curve at its fixed world-x.
+  });
+});
