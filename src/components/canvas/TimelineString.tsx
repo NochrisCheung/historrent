@@ -4,42 +4,56 @@ import { useMemo } from "react";
 import { Color } from "three";
 import { TIMELINE_WORLD_HALF_WIDTH } from "@/shared/constants/timeline";
 import { readCssToken } from "@/shared/styles/cssTokens";
+import { useCurveStore } from "@/state/curveStore";
+import { curveVertexShader, curveFragmentShader, DEFAULT_FRAGMENT_UNIFORMS } from "./shaders";
 
-const FALLBACK_LINE = "#5d513c"; // Matches --line in tokens.css.
-
-/**
- * Width spans Liu Bang's lifespan in world units (-half … +half).
- * Phase 7 replaces the flat material with a vertex-shader curve that bends
- * the geometry's edges into the "loose string" curl; the geometry itself
- * is reused, so we keep the width pinned to the lifespan range.
- */
+const FALLBACK_LINE = "#5d513c"; // matches --line in tokens.css.
 const STRING_WIDTH = 2 * TIMELINE_WORLD_HALF_WIDTH;
-
-/**
- * Height is ~1.5% of the lifespan world-x extent — a thin horizontal stripe
- * that reads as a graphite line at the camera's default zoom.
- */
 const STRING_HEIGHT = STRING_WIDTH * 0.015;
 
 /**
- * The flat timeline string for Phase 3.
+ * The curved-string timeline.
  *
- * Persistence discipline (implementation_plan §4 task 3.2):
- * This component is rendered exactly once from `<Timeline>` and never
- * conditionally. Items mounting / unmounting in later phases must not
- * remount this string — keep the JSX above it stable, and never wrap it
- * in a conditional or list-mapping subtree.
+ * Geometry: a flat plane subdivided into 64 width segments so the vertex
+ * shader has enough vertices to interpolate the curl smoothly.
  *
- * Phase 7 replaces the `meshBasicMaterial` with a `shaderMaterial` to
- * apply the curve. The geometry stays; the vertex shader displaces it.
+ * Reactivity: uniforms are sourced from `useCurveStore` each render. When
+ * the store changes (Leva-driven during dev, locked in production) the
+ * component re-renders, R3F reconciles the new uniforms object onto the
+ * material, and Three.js draws once. This is `frameloop="demand"`-safe
+ * because the React re-render is the source of the invalidation.
+ *
+ * Persistence (plan §4 task 3.2): rendered exactly once from `<Timeline>`,
+ * never conditionally. Item mounts/unmounts must not remount this string.
  */
 export function TimelineString() {
-  const colour = useMemo(() => new Color(readCssToken("--line", FALLBACK_LINE)), []);
+  const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
+  const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
+  const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
+
+  const lineColour = useMemo(() => new Color(readCssToken("--line", FALLBACK_LINE)), []);
+
+  // A fresh uniforms object per render keeps the shader values in sync with
+  // the store. `lineColour`, `vertexShader`, and `fragmentShader` are stable
+  // so Three.js doesn't recompile.
+  const uniforms = {
+    uCenterFlatHalfWidth: { value: uCenterFlatHalfWidth },
+    uCurveAmount: { value: uCurveAmount },
+    uCurveSharpness: { value: uCurveSharpness },
+    uColor: { value: lineColour },
+    uAlphaFalloffStart: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffStart },
+    uAlphaFalloffEnd: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffEnd },
+  };
 
   return (
-    <mesh position={[0, 0, 0]}>
-      <planeGeometry args={[STRING_WIDTH, STRING_HEIGHT]} />
-      <meshBasicMaterial color={colour} />
+    <mesh position={[0, 0, 0]} renderOrder={0}>
+      <planeGeometry args={[STRING_WIDTH, STRING_HEIGHT, 64, 1]} />
+      <shaderMaterial
+        vertexShader={curveVertexShader}
+        fragmentShader={curveFragmentShader}
+        uniforms={uniforms}
+        transparent
+      />
     </mesh>
   );
 }

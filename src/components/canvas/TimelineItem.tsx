@@ -7,7 +7,9 @@ import { useMemo, useRef } from "react";
 import { Color, type Mesh, type MeshBasicMaterial } from "three";
 import { useTimelineStore } from "@/state/timelineStore";
 import { useUiStore } from "@/state/uiStore";
+import { useCurveStore } from "@/state/curveStore";
 import { yearToWorld } from "./geometry/yearToWorld";
+import { curveYAt } from "./geometry/curve";
 import { centralYear } from "@/shared/date/centralYear";
 import { formatYear } from "@/shared/date/bce";
 import { readCssToken } from "@/shared/styles/cssTokens";
@@ -54,6 +56,12 @@ export function TimelineItem({ event }: TimelineItemProps) {
   const invalidate = useThree((s) => s.invalidate);
 
   const x = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
+  // Item rides the curve at its world-x. Selectors keep re-renders narrow:
+  // the item only re-mounts/re-positions when the curve uniforms change.
+  const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
+  const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
+  const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
+  const y = curveYAt(x, { uCenterFlatHalfWidth, uCurveAmount, uCurveSharpness });
   const yearLabel = useMemo(
     () => formatYear(centralYear(event.date), language),
     [event.date, language],
@@ -89,7 +97,7 @@ export function TimelineItem({ event }: TimelineItemProps) {
   return (
     <mesh
       ref={meshRef}
-      position={[x, 0, 0.01]}
+      position={[x, y, 0.01]}
       renderOrder={isHovered ? 1 : 0}
       onPointerOver={(e) => {
         e.stopPropagation();

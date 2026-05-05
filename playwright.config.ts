@@ -27,5 +27,10 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      // Suppress the dev-only Leva curve-tuner so it doesn't intercept
+      // clicks on top-right UI (language toggle, detail panel close button).
+      NEXT_PUBLIC_DISABLE_DEV_TUNER: "1",
+    },
   },
 });
