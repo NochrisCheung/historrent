@@ -3,25 +3,15 @@
 import { Canvas } from "@react-three/fiber";
 import { Color } from "three";
 import { CameraRig } from "./camera/CameraRig";
+import { TimelineString } from "./TimelineString";
+import { readCssToken } from "@/shared/styles/cssTokens";
 
 const FALLBACK_BG = "#FBFCFD"; // Matches --canvas-bg in tokens.css.
 
 /**
- * Resolves the current value of the CSS variable `--canvas-bg`.
- * Server-safe: returns the fallback when `window` is unavailable.
- */
-function readCanvasBackground(): string {
-  if (typeof window === "undefined") return FALLBACK_BG;
-  const resolved = getComputedStyle(document.documentElement)
-    .getPropertyValue("--canvas-bg")
-    .trim();
-  return resolved || FALLBACK_BG;
-}
-
-/**
- * Phase 1 canvas: an empty stage with the calibrated camera and the
- * pale-grey background. Items, the timeline string, the curve shader, and
- * pan/zoom controls land in subsequent phases.
+ * Phase 1–3 canvas: the calibrated stage, pale background, and the flat
+ * timeline string. Items, curve shader, and pan/zoom controls land in
+ * later phases.
  *
  * Performance discipline (engineering-practices.md §1.1):
  *  - `frameloop="demand"` — render only when state changes; idle = 0 GPU.
@@ -36,10 +26,11 @@ export function Timeline() {
       onCreated={({ scene }) => {
         // Three.js's scene.background needs a real Color, not a CSS-variable
         // string. We read the resolved value once when the canvas is created.
-        scene.background = new Color(readCanvasBackground());
+        scene.background = new Color(readCssToken("--canvas-bg", FALLBACK_BG));
       }}
     >
       <CameraRig />
+      <TimelineString />
     </Canvas>
   );
 }

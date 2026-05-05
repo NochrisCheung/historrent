@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 2 complete (2026-05-05) — Zod schema, 5-event ctext-cited seed, bce/citation/yearToWorld helpers all in place; 45 unit tests + 2 E2E green. Phase 3 (timeline string) unblocked.
+**status:** Phase 3 complete (2026-05-05) — flat timeline string mesh in 黧 (--line) colour rendered across the lifespan range; 48 unit tests + 2 E2E green. Phase 4 (items, hover, selection) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -682,8 +682,8 @@ The empty stage. No content yet.
 
 | #   | Status  | Task                                                                                                                                               |
 | --- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.1 | 🔴 TODO | **`src/components/canvas/TimelineString.tsx`** — flat plane mesh from world-x `-5` to `+5`, height ~1.5% of the lifespan span, in `--line` colour. |
-| 3.2 | 🔴 TODO | Mesh persists across re-renders (no remount on item changes). Verify with React DevTools.                                                          |
+| 3.1 | 🟢 DONE | **`src/components/canvas/TimelineString.tsx`** — flat plane mesh from world-x `-5` to `+5`, height ~1.5% of the lifespan span, in `--line` colour. |
+| 3.2 | 🟢 DONE | Mesh persists across re-renders (no remount on item changes). Verify with React DevTools.                                                          |
 
 **Acceptance:** A subtle horizontal line visible across the centre of the canvas. Curve is added in Phase 7.
 
