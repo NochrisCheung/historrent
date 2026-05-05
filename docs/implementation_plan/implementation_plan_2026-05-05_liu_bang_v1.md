@@ -2,7 +2,7 @@
 
 **created_at:** 2026-05-05
 **last_updated:** 2026-05-05
-**status:** Phase 3 complete (2026-05-05) — flat timeline string mesh in 黧 (--line) colour rendered across the lifespan range; 48 unit tests + 2 E2E green. Phase 4 (items, hover, selection) unblocked.
+**status:** Phase 4 complete (2026-05-05) — Zustand store, TimelineItem dot+label per event, hover/click wired with react-spring (frameloop=demand-compatible). 58 unit tests + 5 E2E green. Phase 5 (detail panel) unblocked.
 **topic:** Liu Bang (劉邦) timeline — first deployed version of Historrent
 **owner:** Chris Cheung + Claude Code (Opus 4.7)
 
@@ -691,12 +691,12 @@ The empty stage. No content yet.
 
 | #   | Status  | Task                                                                                                                                                       |
 | --- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 4.1 | 🔴 TODO | **`src/state/timelineStore.ts`** — Zustand store with `hoveredId`, `selectedId`, `zoom`, and setters. Use selector pattern.                                |
-| 4.2 | 🔴 TODO | **`src/components/canvas/TimelineItem.tsx`** — circle mesh at year position; `onPointerOver`/`onPointerOut`/`onClick` mutate store.                        |
-| 4.3 | 🔴 TODO | Hover state: scale `0.04 → 0.06`, colour `--ink → --accent` via react-spring/three.                                                                        |
-| 4.4 | 🔴 TODO | **`<Html>` overlay** for event name + date below each item. Uses `--font-content` and `--ink`. Pointer-events disabled (clicks reach the mesh underneath). |
-| 4.5 | 🔴 TODO | Z-order: hovered item rendered last so its label sits above neighbours.                                                                                    |
-| 4.6 | 🔴 TODO | **`tests/e2e/interact.spec.ts`** — hover triggers visual change, click sets `selectedId`.                                                                  |
+| 4.1 | 🟢 DONE | **`src/state/timelineStore.ts`** — Zustand store with `hoveredId`, `selectedId`, `zoom`, and setters. Use selector pattern.                                |
+| 4.2 | 🟢 DONE | **`src/components/canvas/TimelineItem.tsx`** — circle mesh at year position; `onPointerOver`/`onPointerOut`/`onClick` mutate store.                        |
+| 4.3 | 🟢 DONE | Hover state: scale `0.04 → 0.06`, colour `--ink → --accent` via react-spring/three.                                                                        |
+| 4.4 | 🟢 DONE | **`<Html>` overlay** for event name + date below each item. Uses `--font-content` and `--ink`. Pointer-events disabled (clicks reach the mesh underneath). |
+| 4.5 | 🟢 DONE | Z-order: hovered item rendered last so its label sits above neighbours.                                                                                    |
+| 4.6 | 🟢 DONE | **`tests/e2e/interact.spec.ts`** — hover triggers visual change, click sets `selectedId`.                                                                  |
 
 **Acceptance:** All 5 seed events render at correct years. Hover lights cinnabar. Click stages selection (panel comes in Phase 5).
 
