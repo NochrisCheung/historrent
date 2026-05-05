@@ -158,16 +158,17 @@ test.describe("Interval legend", () => {
 
     const legend = page.getByTestId("interval-legend");
     await expect(legend).toBeVisible();
-    await expect(legend.locator("[data-legend-label]")).toHaveText("10 年");
+    // Phase 8.5.8: legend reads as one unit of the selected granularity.
+    await expect(legend.locator("[data-legend-label]")).toHaveText("1 年");
 
     // Click the month toggle; after the granularity flip the legend label
     // updates immediately (the bar width animates via the spring snap).
     await page.locator('[data-granularity="month"]').click();
     await expect.poll(async () => (await readCamera(page)).granularity).toBe("month");
-    await expect(legend.locator("[data-legend-label]")).toHaveText("1 年");
+    await expect(legend.locator("[data-legend-label]")).toHaveText("1 月");
 
     await page.locator('[data-granularity="day"]').click();
     await expect.poll(async () => (await readCamera(page)).granularity).toBe("day");
-    await expect(legend.locator("[data-legend-label]")).toHaveText("1 月");
+    await expect(legend.locator("[data-legend-label]")).toHaveText("1 日");
   });
 });

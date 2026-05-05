@@ -164,15 +164,12 @@ export function TimelineItem({ event }: TimelineItemProps) {
       </mesh>
 
       {/*
-        Labels are hidden at rest and revealed on hover.
-        At year-zoom Liu Bang's middle four events cluster within ~0.3 world
-        units (a few dozen pixels) so always-on labels overlap. Per
-        engineering-practices.md §1.1.5 ("Label de-clustering at scale") we
-        drop them by default and let hover reveal one at a time. Phase 8's
-        zoom levels and Phase 1.5's significance filter restore some
-        always-on visibility. Labels are siblings (not children) of the dot
-        mesh so the mesh's scale doesn't pull the labels into a pinhole at
-        month/day zoom (Phase 8.5.1).
+        Labels render permanently (Phase 8.5.7 user revision). At year zoom,
+        the four events on the right cluster (uprising → death) overlap
+        their name labels — accepted tradeoff for now; collision avoidance
+        / significance filtering is a follow-on iteration. Labels are
+        siblings (not children) of the dot mesh so the mesh's scale
+        doesn't pull them into a pinhole at month/day zoom (Phase 8.5.1).
       */}
       {/* Event name — above the dot. */}
       <Html
@@ -189,8 +186,6 @@ export function TimelineItem({ event }: TimelineItemProps) {
             fontSize: 13,
             fontWeight: 500,
             whiteSpace: "nowrap",
-            opacity: isHovered ? 1 : 0,
-            transition: "opacity var(--dur-fast) var(--ease)",
           }}
         >
           {displayName}
@@ -211,8 +206,6 @@ export function TimelineItem({ event }: TimelineItemProps) {
             color: "var(--ink-muted)",
             fontSize: 11,
             whiteSpace: "nowrap",
-            opacity: isHovered ? 1 : 0,
-            transition: "opacity var(--dur-fast) var(--ease)",
           }}
         >
           {yearLabel}

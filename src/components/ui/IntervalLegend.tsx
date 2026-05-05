@@ -7,35 +7,39 @@ import { WORLD_PER_YEAR } from "@/shared/constants/timeline";
 import styles from "./IntervalLegend.module.css";
 
 /**
- * Map-style scale bar (Phase 8.5.3). Bottom-left fixed overlay showing
- * "one decade / one year / one month" worth of pixels at the current zoom,
- * so the user always has a quantitative readout of the timeline scale.
+ * Map-style scale bar. Bottom-left fixed overlay showing one unit of the
+ * currently-selected granularity (Phase 8.5.8 user revision — the bar
+ * tracks the toggle one-to-one rather than picking a one-step-bigger
+ * convenience interval).
  *
- *  - `year` zoom → 10-year bar, label `10 年`
- *  - `month` zoom → 1-year bar, label `1 年`
- *  - `day` zoom → 1-month bar, label `1 月`
+ *  - `year` zoom → 1-year bar, label `1 年`
+ *  - `month` zoom → 1-month bar, label `1 月`
+ *  - `day` zoom → 1-day bar, label `1 日`
  *
  * Bar pixel width is recomputed each render from `viewportWorldWidth`
  * (continuous wheel zoom + spring snap) and the visible canvas width
- * (≈ `window.innerWidth` since the canvas is full-viewport). Label and
- * interval are fixed per granularity, so the label only changes at the
- * 220ms snap. The unit characters 年 / 月 are universal across Hans/Hant;
- * only the aria-label is i18n'd.
+ * (≈ `window.innerWidth` since the canvas is full-viewport). Pixel
+ * widths come out small (~15–25 px on a 1366-wide viewport) — that is
+ * the literal "one unit at this zoom" reading; users who want a longer
+ * bar can read the toggle for the unit and the legend for the scale.
+ * The unit characters 年 / 月 / 日 are universal across Hans/Hant; only
+ * the aria-label is i18n'd.
  */
 
 interface LegendInterval {
   /** World units the bar represents at the current granularity. */
   worldUnits: number;
-  /** Localised-by-character label (年/月 are universal). */
+  /** Localised-by-character label (年/月/日 are universal). */
   label: string;
 }
 
 const ONE_MONTH_IN_YEARS = 1 / 12;
+const ONE_DAY_IN_YEARS = 1 / 365.25;
 
 const LEGEND_BY_GRANULARITY: Record<Granularity, LegendInterval> = {
-  year: { worldUnits: 10 * WORLD_PER_YEAR, label: "10 年" },
-  month: { worldUnits: 1 * WORLD_PER_YEAR, label: "1 年" },
-  day: { worldUnits: ONE_MONTH_IN_YEARS * WORLD_PER_YEAR, label: "1 月" },
+  year: { worldUnits: 1 * WORLD_PER_YEAR, label: "1 年" },
+  month: { worldUnits: ONE_MONTH_IN_YEARS * WORLD_PER_YEAR, label: "1 月" },
+  day: { worldUnits: ONE_DAY_IN_YEARS * WORLD_PER_YEAR, label: "1 日" },
 };
 
 export function IntervalLegend() {
