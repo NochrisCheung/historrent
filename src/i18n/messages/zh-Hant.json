@@ -1,0 +1,14 @@
+{
+  "languageToggle": {
+    "ariaLabel": "切換簡體／繁體",
+    "simplified": "簡",
+    "traditional": "繁"
+  },
+  "panel": {
+    "close": "關閉",
+    "citations": "來源",
+    "showSynthesis": "顯示綜合",
+    "showSynthesisDeferred": "顯示綜合 (Phase 9)",
+    "synthesisDeferredHint": "AI 綜合將在第 9 階段接入"
+  }
+}

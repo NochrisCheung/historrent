@@ -6,10 +6,12 @@ import { useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { Color, type Mesh, type MeshBasicMaterial } from "three";
 import { useTimelineStore } from "@/state/timelineStore";
+import { useUiStore } from "@/state/uiStore";
 import { yearToWorld } from "./geometry/yearToWorld";
 import { centralYear } from "@/shared/date/centralYear";
 import { formatYear } from "@/shared/date/bce";
 import { readCssToken } from "@/shared/styles/cssTokens";
+import { pickName } from "@/shared/text/pickName";
 import type { TLiuBangEvent } from "@/data/liu_bang.schema";
 
 const FALLBACK_INK = "#3d3b4f";
@@ -47,11 +49,16 @@ export function TimelineItem({ event }: TimelineItemProps) {
   const isHovered = useTimelineStore((s) => s.hoveredId === event.id);
   const setHovered = useTimelineStore((s) => s.setHovered);
   const setSelected = useTimelineStore((s) => s.setSelected);
+  const language = useUiStore((s) => s.language);
 
   const invalidate = useThree((s) => s.invalidate);
 
   const x = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
-  const yearLabel = useMemo(() => formatYear(centralYear(event.date), "zh-Hans"), [event.date]);
+  const yearLabel = useMemo(
+    () => formatYear(centralYear(event.date), language),
+    [event.date, language],
+  );
+  const displayName = useMemo(() => pickName(event.name, language), [event.name, language]);
 
   const colours = useMemo(
     () => ({
@@ -123,7 +130,7 @@ export function TimelineItem({ event }: TimelineItemProps) {
             transition: "opacity var(--dur-fast) var(--ease)",
           }}
         >
-          {event.name.zhHans}
+          {displayName}
           <span style={{ color: "var(--ink-muted)", marginLeft: 6, fontSize: 11 }}>
             {yearLabel}
           </span>

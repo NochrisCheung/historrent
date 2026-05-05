@@ -1,0 +1,14 @@
+{
+  "languageToggle": {
+    "ariaLabel": "切换简体／繁体",
+    "simplified": "简",
+    "traditional": "繁"
+  },
+  "panel": {
+    "close": "关闭",
+    "citations": "来源",
+    "showSynthesis": "显示综合",
+    "showSynthesisDeferred": "显示综合 (Phase 9)",
+    "synthesisDeferredHint": "AI 综合将在第 9 阶段接入"
+  }
+}

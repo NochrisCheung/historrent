@@ -19,11 +19,12 @@
   --accent: #bf242a; /* 朱砂 zhūshā — cinnabar */
   --accent-alt: #4a4266; /* 黛 dài — kohl indigo */
 
-  /* Type — actual font files are wired in Phase 6 (next/font/local + pyftsubset).
-     Phase 1 falls through to system fonts. */
-  --font-content: "LXGW WenKai", "Source Han Serif SC", "Songti SC", serif;
-  --font-chrome: "Source Han Sans SC", "PingFang SC", -apple-system, system-ui, sans-serif;
-  --font-quote: "Source Han Serif SC", "Source Han Serif TC", "Songti SC", serif;
+  /* Type — fonts loaded via next/font/google in src/fonts/index.ts.
+     Defaults assume Simplified UI; the `[lang=...]` selectors below
+     swap the content stack for Traditional. */
+  --font-content: var(--font-noto-serif-sc), "Songti SC", serif;
+  --font-chrome: var(--font-noto-sans-sc), "PingFang SC", -apple-system, system-ui, sans-serif;
+  --font-quote: var(--font-noto-serif-sc), "Source Han Serif TC", "Songti SC", serif;
 
   /* Spacing rhythm — 8px base */
   --s-1: 4px;
@@ -38,4 +39,12 @@
   --dur-fast: 160ms;
   --dur-base: 240ms;
   --dur-slow: 400ms;
+}
+
+/* Traditional Chinese: prefer LXGW WenKai TC for content, Noto Sans TC for chrome.
+   Provider.tsx keeps `<html lang>` synced with the active locale. */
+:root[lang="zh-Hant"] {
+  --font-content: var(--font-lxgw-wenkai-tc), "Source Han Serif TC", "Songti TC", serif;
+  --font-chrome: var(--font-noto-sans-tc), "PingFang TC", -apple-system, system-ui, sans-serif;
+  --font-quote: var(--font-lxgw-wenkai-tc), "Source Han Serif TC", "Songti TC", serif;
 }

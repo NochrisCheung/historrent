@@ -1,11 +1,14 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { useTimelineStore } from "@/state/timelineStore";
+import { useUiStore, type Language } from "@/state/uiStore";
 import { findEvent } from "@/data/liu_bang";
 import { formatFuzzyDate } from "@/shared/date/formatFuzzyDate";
 import { formatCitation } from "@/shared/citation/format";
+import { pickName } from "@/shared/text/pickName";
 import type { TCitation, TLiuBangEvent } from "@/data/liu_bang.schema";
 import styles from "./DetailPanel.module.css";
 
@@ -18,12 +21,14 @@ const EASE = [0.4, 0, 0.2, 1] as const;
  *  - the ESC key,
  *  - clicking on empty canvas (handled in Timeline.tsx via onPointerMissed).
  *
- * Phase 1 displays only Simplified Chinese — Phase 6 wires the language
- * toggle through `uiStore` and switches the rendered fields.
+ * All user-facing strings flow through next-intl. Event names, descriptions,
+ * the formatted date, and the citation card all switch to the active
+ * Hans/Hant variant when the language toggle flips.
  */
 export function DetailPanel() {
   const selectedId = useTimelineStore((s) => s.selectedId);
   const setSelected = useTimelineStore((s) => s.setSelected);
+  const language = useUiStore((s) => s.language);
   const event = findEvent(selectedId);
 
   useEffect(() => {
@@ -46,34 +51,44 @@ export function DetailPanel() {
           exit={{ x: "100%" }}
           transition={{ duration: SLIDE_DURATION, ease: EASE }}
         >
-          <PanelContent event={event} onClose={() => setSelected(null)} />
+          <PanelContent event={event} language={language} onClose={() => setSelected(null)} />
         </motion.aside>
       )}
     </AnimatePresence>
   );
 }
 
-function PanelContent({ event, onClose }: { event: TLiuBangEvent; onClose: () => void }) {
+function PanelContent({
+  event,
+  language,
+  onClose,
+}: {
+  event: TLiuBangEvent;
+  language: Language;
+  onClose: () => void;
+}) {
+  const t = useTranslations("panel");
+
   return (
     <>
       <header className={styles.header}>
         <div>
-          <h2 className={styles.title}>{event.name.zhHans}</h2>
-          <p className={styles.date}>{formatFuzzyDate(event.date, "zh-Hans")}</p>
+          <h2 className={styles.title}>{pickName(event.name, language)}</h2>
+          <p className={styles.date}>{formatFuzzyDate(event.date, language)}</p>
         </div>
-        <button type="button" className={styles.close} aria-label="关闭" onClick={onClose}>
+        <button type="button" className={styles.close} aria-label={t("close")} onClick={onClose}>
           ×
         </button>
       </header>
 
-      <p className={styles.description}>{event.description.zhHans}</p>
+      <p className={styles.description}>{pickName(event.description, language)}</p>
 
       <section className={styles.citations} aria-labelledby="citations-heading">
         <h3 id="citations-heading" className={styles.citationsHeading}>
-          来源
+          {t("citations")}
         </h3>
         {event.citations.map((citation, index) => (
-          <CitationCard key={index} citation={citation} />
+          <CitationCard key={index} citation={citation} language={language} />
         ))}
       </section>
 
@@ -82,16 +97,16 @@ function PanelContent({ event, onClose }: { event: TLiuBangEvent; onClose: () =>
         className={styles.synthesisStub}
         aria-disabled
         disabled
-        title="Phase 9 wires DeepSeek source synthesis"
+        title={t("synthesisDeferredHint")}
       >
-        显示综合 (Phase 9)
+        {t("showSynthesisDeferred")}
       </button>
     </>
   );
 }
 
-function CitationCard({ citation }: { citation: TCitation }) {
-  const f = formatCitation(citation, "zh-Hans");
+function CitationCard({ citation, language }: { citation: TCitation; language: Language }) {
+  const f = formatCitation(citation, language);
   return (
     <article className={styles.citationCard}>
       <a href={f.href} target="_blank" rel="noopener noreferrer" className={styles.citationLink}>
