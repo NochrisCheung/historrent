@@ -6,67 +6,61 @@ import { TIMELINE_STRING_HALF_EXTENT } from "@/shared/constants/timeline";
 import { readCssToken } from "@/shared/styles/cssTokens";
 import { useCurveStore } from "@/state/curveStore";
 import { useCameraStore } from "@/state/cameraStore";
-import { curveVertexShader, curveFragmentShader, DEFAULT_FRAGMENT_UNIFORMS } from "./shaders";
+import { VIEWPORT_HALF_WIDTH } from "./geometry/curve";
+import { curveVertexShader, curveFragmentShader } from "./shaders";
 
 const FALLBACK_LINE = "#5d513c"; // matches --line in tokens.css.
 
 /**
- * The string mesh extends well past the lifespan in both directions so the
- * scarf-like curl/wave have room to develop into the off-viewport past and
- * future. Width = 2 × TIMELINE_STRING_HALF_EXTENT.
+ * The string mesh extends well past the lifespan in both directions so
+ * the user can pan freely without ever seeing the mesh end. The
+ * fragment shader's viewport-relative alpha falloff (Phase 8.5.11) is
+ * what fades the visible left/right ends, regardless of the mesh's
+ * world-x extent. Width = 2 × TIMELINE_STRING_HALF_EXTENT.
  */
 const STRING_WIDTH = 2 * TIMELINE_STRING_HALF_EXTENT;
 
 /**
  * Thin string. Reads as a clean ~2 px line at the camera's constant
- * zoom (canvas/year-width) on a typical desktop. After Phase 8.5.9 the
- * camera no longer zooms with granularity, so no y-scale compensation
- * is needed — this constant alone drives the on-screen thickness.
+ * zoom (canvas / year-width) on a typical desktop.
  */
 const STRING_HEIGHT = 0.02;
 
 /**
- * Plane subdivisions along x. The vertex shader interpolates the wave/curl
- * across these vertices, so we need enough density to keep the long string
- * smooth without visible faceting at the curl tails.
+ * Plane subdivisions along x. After Phase 8.5.11 the vertex shader no
+ * longer displaces y, so heavy subdivision isn't strictly required for
+ * smoothness; we keep a moderate count so the fragment shader has
+ * enough samples for a clean alpha gradient across the line.
  */
-const STRING_SEGMENTS_X = 256;
+const STRING_SEGMENTS_X = 64;
 
 /**
- * The curved-string timeline.
+ * The flat timeline string with viewport-relative edge fade.
  *
- * Reactivity: uniforms are sourced from `useCurveStore` each render. When
- * the store changes (Leva-driven during dev, locked in production) the
- * component re-renders, R3F reconciles the new uniforms object onto the
- * material, and Three.js draws once. This is `frameloop="demand"`-safe
- * because the React re-render is the source of the invalidation.
+ * Reactivity: uniforms are sourced from `useCurveStore` (alpha-falloff
+ * thresholds) and `useCameraStore.cameraX` (the fade pivot) each
+ * render. When any of these change, R3F reconciles the new uniforms
+ * object onto the material and Three.js draws once. This is
+ * `frameloop="demand"`-safe because the React re-render is the source
+ * of the invalidation.
  *
- * Persistence (plan §4 task 3.2): rendered exactly once from `<Timeline>`,
- * never conditionally. Item mounts/unmounts must not remount this string.
+ * Persistence (plan §4 task 3.2): rendered exactly once from
+ * `<Timeline>`, never conditionally. Item mounts/unmounts must not
+ * remount this string.
  */
 export function TimelineString() {
-  // Curve centre mirrors the camera so the curl always recedes at the
-  // viewport edges as the user pans (Phase 8). The visible portion of
-  // the string is always `cameraX ± year-width/2` because Phase 8.5.9
-  // pinned the camera zoom; the curl/wave proportions are therefore
-  // identical at every granularity.
   const uCurveCenter = useCameraStore((s) => s.cameraX);
-  const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
-  const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
-  const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
-  const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
+  const uAlphaFalloffStart = useCurveStore((s) => s.uAlphaFalloffStart);
+  const uAlphaFalloffEnd = useCurveStore((s) => s.uAlphaFalloffEnd);
 
   const lineColour = useMemo(() => new Color(readCssToken("--line", FALLBACK_LINE)), []);
 
   const uniforms = {
     uCurveCenter: { value: uCurveCenter },
-    uCenterFlatHalfWidth: { value: uCenterFlatHalfWidth },
-    uCurveAmount: { value: uCurveAmount },
-    uCurveSharpness: { value: uCurveSharpness },
-    uWobbleAmount: { value: uWobbleAmount },
+    uViewportHalfWidth: { value: VIEWPORT_HALF_WIDTH },
+    uAlphaFalloffStart: { value: uAlphaFalloffStart },
+    uAlphaFalloffEnd: { value: uAlphaFalloffEnd },
     uColor: { value: lineColour },
-    uAlphaFalloffStart: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffStart },
-    uAlphaFalloffEnd: { value: DEFAULT_FRAGMENT_UNIFORMS.alphaFalloffEnd },
   };
 
   return (

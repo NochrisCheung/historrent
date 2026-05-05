@@ -1,24 +1,21 @@
 /**
- * Tunable curve uniforms.
+ * Tunable shader uniforms for the timeline string's edge fade.
  *
- * The values here drive both the vertex shader on the timeline string
- * (in `TimelineString.tsx`) and the y-displacement of items
- * (`TimelineItem.tsx`), so they stay in lockstep as the curl deepens or
- * shallows. During Phase 7 visual iteration the dev-only `<CurveTuner>`
- * pushes user-tweaked values into this store; production runs use the
- * defaults until the user signs off (Phase 11) and we re-bake them as
- * constants.
+ * Phase 8.5.11 stripped the curl/wave; only the two alpha-falloff
+ * thresholds remain tunable here. `<TimelineString>` reads them and
+ * passes them into the fragment-shader uniforms; `<CurveTuner>` (dev
+ * only) pushes Leva slider values back into this store. Production runs
+ * use the defaults until Phase 11 sign-off bakes them in.
  */
 
 import { create } from "zustand";
 import { DEFAULT_CURVE_UNIFORMS, type CurveUniforms } from "@/components/canvas/geometry/curve";
 
 /**
- * The curve's *shape* uniforms — everything except `uCurveCenter`, which
- * mirrors `cameraStore.cameraX` and is combined in `TimelineString` /
- * `TimelineItem` at render time.
+ * The shape uniforms — everything except `uCurveCenter` (mirrors
+ * `cameraStore.cameraX`) and `uViewportHalfWidth` (constant after 8.5.9).
  */
-type CurveShape = Omit<CurveUniforms, "uCurveCenter">;
+type CurveShape = Pick<CurveUniforms, "uAlphaFalloffStart" | "uAlphaFalloffEnd">;
 
 interface CurveState extends CurveShape {
   setUniforms: (next: Partial<CurveShape>) => void;
@@ -26,10 +23,8 @@ interface CurveState extends CurveShape {
 }
 
 const INITIAL_SHAPE: CurveShape = {
-  uCenterFlatHalfWidth: DEFAULT_CURVE_UNIFORMS.uCenterFlatHalfWidth,
-  uCurveAmount: DEFAULT_CURVE_UNIFORMS.uCurveAmount,
-  uCurveSharpness: DEFAULT_CURVE_UNIFORMS.uCurveSharpness,
-  uWobbleAmount: DEFAULT_CURVE_UNIFORMS.uWobbleAmount,
+  uAlphaFalloffStart: DEFAULT_CURVE_UNIFORMS.uAlphaFalloffStart,
+  uAlphaFalloffEnd: DEFAULT_CURVE_UNIFORMS.uAlphaFalloffEnd,
 };
 
 export const useCurveStore = create<CurveState>((set) => ({

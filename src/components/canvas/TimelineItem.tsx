@@ -7,10 +7,8 @@ import { useMemo, useRef } from "react";
 import { Color, type Mesh, type MeshBasicMaterial } from "three";
 import { useTimelineStore } from "@/state/timelineStore";
 import { useUiStore } from "@/state/uiStore";
-import { useCurveStore } from "@/state/curveStore";
 import { useCameraStore, GRANULARITY_WIDTHS } from "@/state/cameraStore";
 import { yearToWorld } from "./geometry/yearToWorld";
-import { curveYAt } from "./geometry/curve";
 import { centralYear } from "@/shared/date/centralYear";
 import { formatYear } from "@/shared/date/bce";
 import { readCssToken } from "@/shared/styles/cssTokens";
@@ -42,18 +40,16 @@ interface TimelineItemProps {
 }
 
 /**
- * One event on the timeline: a small circular mesh sitting on the
- * curved string, with DOM-text labels above (name) and below (date).
+ * One event on the timeline: a small circular mesh sitting on the flat
+ * string, with DOM-text labels above (name) and below (date).
  *
  * Phase 8.5.9 — events spread radially around `cameraX`. The camera no
  * longer zooms with `viewportWorldWidth`; instead each event renders at
  *   renderedX = cameraX + (originalX − cameraX) × eventScale
  * where `eventScale = GRANULARITY_WIDTHS.year / viewportWorldWidth`.
  * Year zoom = no stretch (eventScale 1); month ≈ 14.6×; day ≈ 292.7×.
- * The string mesh is unchanged, so its curl/wobble shape is identical
- * at every granularity. The y for the dot is `curveYAt(renderedX, …)`,
- * so events near `cameraX` sit on the flat zone and events that have
- * been stretched out into the curl tails ride the curl.
+ *
+ * Phase 8.5.11 — the string is now a flat horizontal line, so y is 0.
  *
  * Performance discipline (engineering-practices.md §1.1):
  *  - Subscribes to `hoveredId === event.id` via a Zustand selector with
@@ -76,20 +72,9 @@ export function TimelineItem({ event, lane }: TimelineItemProps) {
   const originalX = useMemo(() => yearToWorld(centralYear(event.date)), [event.date]);
   const cameraX = useCameraStore((s) => s.cameraX);
   const viewportWorldWidth = useCameraStore((s) => s.viewportWorldWidth);
-  const uCenterFlatHalfWidth = useCurveStore((s) => s.uCenterFlatHalfWidth);
-  const uCurveAmount = useCurveStore((s) => s.uCurveAmount);
-  const uCurveSharpness = useCurveStore((s) => s.uCurveSharpness);
-  const uWobbleAmount = useCurveStore((s) => s.uWobbleAmount);
 
   const eventScale = GRANULARITY_WIDTHS.year / viewportWorldWidth;
   const renderedX = cameraX + (originalX - cameraX) * eventScale;
-  const y = curveYAt(renderedX, {
-    uCurveCenter: cameraX,
-    uCenterFlatHalfWidth,
-    uCurveAmount,
-    uCurveSharpness,
-    uWobbleAmount,
-  });
 
   const yearLabel = useMemo(
     () => formatYear(centralYear(event.date), language),
@@ -124,7 +109,7 @@ export function TimelineItem({ event, lane }: TimelineItemProps) {
   });
 
   return (
-    <group position={[renderedX, y, 0.01]}>
+    <group position={[renderedX, 0, 0.01]}>
       <mesh
         ref={meshRef}
         renderOrder={isHovered ? 1 : 0}

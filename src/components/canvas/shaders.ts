@@ -1,74 +1,50 @@
 /**
- * GLSL shader sources for the curved timeline string.
+ * GLSL shader sources for the timeline string.
  *
- * Hosted as TS template strings rather than separate `.glsl` files (Phase 7
- * deviation from plan task 7.2a — saves a Turbopack raw-loader rule). The
- * vertex shader's displacement math MUST stay in lockstep with
- * `geometry/curve.ts#curveYAt`; both share the same uniform names and
- * same smoothstep formula.
+ * Hosted as TS template strings rather than separate `.glsl` files
+ * (Phase 7 deviation — saves a Turbopack raw-loader rule).
  *
- * Phase 11 visual iteration may add a fragment-shader vignette / paper
- * texture pass; today the fragment shader is just a flat colour with
- * alpha falloff at the curl tips.
+ * Phase 8.5.11: the string is now a clean horizontal line. The vertex
+ * shader does no displacement; the fragment shader fades the visible
+ * left/right ends to transparent based on world-x distance from the
+ * camera centre (`uCurveCenter`), normalised by `uViewportHalfWidth`
+ * (= `GRANULARITY_WIDTHS.year / 2 = 6` since 8.5.9 fixed the camera
+ * zoom). The earlier curve/wobble shaders are gone; if a future visual
+ * pass wants paper texture / vignette, this is the place to add it.
  */
 
 export const curveVertexShader = /* glsl */ `
-  uniform float uCurveCenter;
-  uniform float uCenterFlatHalfWidth;
-  uniform float uCurveAmount;
-  uniform float uCurveSharpness;
-  uniform float uWobbleAmount;
-
-  varying vec2 vUv;
-
-  // Multi-frequency wave — must stay in lockstep with
-  // \`geometry/curve.ts#curveWave\`. Bounded |·| ≤ 1.0.
-  float curveWave(float x) {
-    return sin(x * 0.35) * 0.5
-         + sin(x * 0.85 + 1.3) * 0.3
-         + sin(x * 1.7 + 2.7) * 0.2;
-  }
+  varying float vWorldX;
 
   void main() {
-    vUv = uv;
-
-    vec3 displaced = position;
-    // The curl ENVELOPE is centred at uCurveCenter (the camera target); xRel
-    // makes the held flat zone follow the camera as it pans (Phase 8).
-    // The wave PHASE, by contrast, ties to absolute world-x (Phase 8.5.2),
-    // so the wobble pattern in the curl tails appears to scroll laterally
-    // as the user drags — providing a peripheral motion cue the user-facing
-    // pan would otherwise lack.
-    float xRel = position.x - uCurveCenter;
-    float xAbs = abs(xRel);
-    float beyondFlat = max(xAbs - uCenterFlatHalfWidth, 0.0);
-    float envelope = smoothstep(0.0, uCurveSharpness, beyondFlat);
-    float wave = curveWave(position.x);
-    // Both the drop and the wobble are gated by the envelope, so the held
-    // flat zone (beyondFlat == 0) is dead straight.
-    displaced.y += wave * envelope * uWobbleAmount - envelope * uCurveAmount;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+    vWorldX = position.x;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
 
 export const curveFragmentShader = /* glsl */ `
   uniform vec3 uColor;
+  uniform float uCurveCenter;
+  uniform float uViewportHalfWidth;
   uniform float uAlphaFalloffStart;
   uniform float uAlphaFalloffEnd;
 
-  varying vec2 vUv;
+  varying float vWorldX;
 
   void main() {
-    // 0 at the centre, 1 at the left/right edges.
-    float distFromCentre = abs(vUv.x - 0.5) * 2.0;
-    float alpha = 1.0 - smoothstep(uAlphaFalloffStart, uAlphaFalloffEnd, distFromCentre);
+    // 0 at camera centre, 1 at the visible viewport edge.
+    float t = abs(vWorldX - uCurveCenter) / uViewportHalfWidth;
+    float alpha = 1.0 - smoothstep(uAlphaFalloffStart, uAlphaFalloffEnd, t);
     gl_FragColor = vec4(uColor, alpha);
   }
 `;
 
-/** Default fragment-shader uniforms; these aren't tunable from Leva today. */
+/**
+ * Default fragment-shader uniforms. `alphaFalloffStart` was 0.7 before
+ * Phase 8.5.11; the user wanted "more blurred", so the fade now starts
+ * at half the viewport from centre and runs to the visible edge.
+ */
 export const DEFAULT_FRAGMENT_UNIFORMS = {
-  alphaFalloffStart: 0.7,
+  alphaFalloffStart: 0.5,
   alphaFalloffEnd: 1.0,
 };
