@@ -1,0 +1,204 @@
+{
+  "subject": {
+    "id": "liu-bang",
+    "name": {
+      "zhHans": "刘邦",
+      "zhHant": "劉邦",
+      "pinyin": "Liú Bāng",
+      "en": "Liu Bang"
+    },
+    "born": {
+      "edtf": "-0256/-0247",
+      "precision": "year",
+      "startEarliest": -256,
+      "startLatest": -247,
+      "endEarliest": -256,
+      "endLatest": -247
+    },
+    "died": {
+      "edtf": "-0195",
+      "precision": "year",
+      "startEarliest": -195,
+      "startLatest": -195,
+      "endEarliest": -195,
+      "endLatest": -195
+    }
+  },
+  "events": [
+    {
+      "id": "birth",
+      "name": {
+        "zhHans": "生于沛县",
+        "zhHant": "生於沛縣",
+        "pinyin": "Shēng yú Pèixiàn",
+        "en": "Born in Pei County"
+      },
+      "date": {
+        "edtf": "-0256/-0247",
+        "precision": "year",
+        "startEarliest": -256,
+        "startLatest": -247,
+        "endEarliest": -256,
+        "endLatest": -247
+      },
+      "description": {
+        "zhHans": "高祖出生于沛县丰邑中阳里。父太公，母刘媪。",
+        "zhHant": "高祖出生於沛縣豐邑中陽里。父太公，母劉媼。"
+      },
+      "citations": [
+        {
+          "work": "Shiji",
+          "edition": "Zhonghua Shuju 1959 punctuated edition",
+          "chapter": 8,
+          "section": "高祖本紀",
+          "paragraph": 1,
+          "textAnchor": "高祖，沛豐邑中陽裏",
+          "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4897",
+          "language": "zh-Hant"
+        }
+      ],
+      "significance": "major",
+      "tags": ["birth", "origin"]
+    },
+    {
+      "id": "acclaimed-pei-gong",
+      "name": {
+        "zhHans": "立为沛公",
+        "zhHant": "立為沛公",
+        "pinyin": "Lì wéi Pèigōng",
+        "en": "Acclaimed as Lord of Pei"
+      },
+      "date": {
+        "edtf": "-0209",
+        "precision": "year",
+        "startEarliest": -209,
+        "startLatest": -209,
+        "endEarliest": -209,
+        "endLatest": -209
+      },
+      "description": {
+        "zhHans": "陈胜起兵反秦后，沛县父老杀沛令，立刘季为沛公，起兵反秦。",
+        "zhHant": "陳勝起兵反秦後，沛縣父老殺沛令，立劉季為沛公，起兵反秦。"
+      },
+      "citations": [
+        {
+          "work": "Shiji",
+          "edition": "Zhonghua Shuju 1959 punctuated edition",
+          "chapter": 8,
+          "section": "高祖本紀",
+          "paragraph": 9,
+          "textAnchor": "於是劉季數讓",
+          "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4905",
+          "language": "zh-Hant"
+        }
+      ],
+      "significance": "major",
+      "tags": ["uprising", "ascension"]
+    },
+    {
+      "id": "enter-xianyang",
+      "name": {
+        "zhHans": "攻入咸阳",
+        "zhHant": "攻入咸陽",
+        "pinyin": "Gōng rù Xiányáng",
+        "en": "Enters Xianyang"
+      },
+      "date": {
+        "edtf": "-0207",
+        "precision": "year",
+        "startEarliest": -207,
+        "startLatest": -207,
+        "endEarliest": -207,
+        "endLatest": -207
+      },
+      "description": {
+        "zhHans": "汉元年十月，沛公率军先于诸侯抵霸上；秦王子婴素车白马投降，秦亡。",
+        "zhHant": "漢元年十月，沛公率軍先於諸侯抵霸上；秦王子嬰素車白馬投降，秦亡。"
+      },
+      "citations": [
+        {
+          "work": "Shiji",
+          "edition": "Zhonghua Shuju 1959 punctuated edition",
+          "chapter": 8,
+          "section": "高祖本紀",
+          "paragraph": 22,
+          "textAnchor": "漢元年十月，沛公兵",
+          "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4918",
+          "language": "zh-Hant"
+        }
+      ],
+      "significance": "major",
+      "tags": ["military", "qin-fall"]
+    },
+    {
+      "id": "hongmen-banquet",
+      "name": {
+        "zhHans": "鸿门宴",
+        "zhHant": "鴻門宴",
+        "pinyin": "Hóngmén Yàn",
+        "en": "Hongmen Banquet"
+      },
+      "date": {
+        "edtf": "-0206",
+        "precision": "year",
+        "startEarliest": -206,
+        "startLatest": -206,
+        "endEarliest": -206,
+        "endLatest": -206
+      },
+      "description": {
+        "zhHans": "沛公率百余骑赴鸿门，向项羽谢罪，险遭杀身之祸而后脱险。",
+        "zhHant": "沛公率百餘騎赴鴻門，向項羽謝罪，險遭殺身之禍而後脫險。"
+      },
+      "citations": [
+        {
+          "work": "Shiji",
+          "edition": "Zhonghua Shuju 1959 punctuated edition",
+          "chapter": 8,
+          "section": "高祖本紀",
+          "paragraph": 23,
+          "textAnchor": "沛公從百餘騎",
+          "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4919",
+          "language": "zh-Hant"
+        }
+      ],
+      "significance": "major",
+      "tags": ["court", "xiang-yu"]
+    },
+    {
+      "id": "imperial-accession",
+      "name": {
+        "zhHans": "即皇帝位",
+        "zhHant": "即皇帝位",
+        "pinyin": "Jí huángdì wèi",
+        "en": "Accedes to the Imperial Throne"
+      },
+      "date": {
+        "edtf": "-0202",
+        "precision": "year",
+        "startEarliest": -202,
+        "startLatest": -202,
+        "endEarliest": -202,
+        "endLatest": -202
+      },
+      "description": {
+        "zhHans": "甲午日，刘邦于汜水之阳即皇帝位，建立汉朝。",
+        "zhHant": "甲午日，劉邦於汜水之陽即皇帝位，建立漢朝。"
+      },
+      "citations": [
+        {
+          "work": "Shiji",
+          "edition": "Zhonghua Shuju 1959 punctuated edition",
+          "chapter": 8,
+          "section": "高祖本紀",
+          "paragraph": 53,
+          "textAnchor": "甲午，乃即皇帝位",
+          "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4949",
+          "language": "zh-Hant"
+        }
+      ],
+      "significance": "major",
+      "tags": ["ascension", "founding"]
+    }
+  ]
+}
