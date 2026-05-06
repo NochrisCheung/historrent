@@ -13,6 +13,14 @@
   "intervalLegend": {
     "ariaLabel": "比例尺：{label}"
   },
+  "loading": {
+    "fonts": "加载字体…",
+    "data": "加载历史…",
+    "canvas": "加载画布…",
+    "errorTitle": "出错了",
+    "errorMessage": "页面加载失败，请重试。",
+    "errorRetry": "重试"
+  },
   "panel": {
     "close": "关闭",
     "citations": "来源",

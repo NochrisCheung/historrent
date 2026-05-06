@@ -13,6 +13,14 @@
   "intervalLegend": {
     "ariaLabel": "比例尺：{label}"
   },
+  "loading": {
+    "fonts": "載入字型…",
+    "data": "載入歷史…",
+    "canvas": "載入畫布…",
+    "errorTitle": "出錯了",
+    "errorMessage": "頁面載入失敗，請重試。",
+    "errorRetry": "重試"
+  },
   "panel": {
     "close": "關閉",
     "citations": "來源",

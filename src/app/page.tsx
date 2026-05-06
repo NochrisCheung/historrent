@@ -2,6 +2,7 @@ import { Timeline } from "@/components/canvas/Timeline";
 import { DetailPanel } from "@/components/ui/DetailPanel";
 import { IntervalLegend } from "@/components/ui/IntervalLegend";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
+import { LoadingFlow } from "@/components/ui/LoadingFlow";
 import { ZoomToggle } from "@/components/ui/ZoomToggle";
 import { CurveTuner } from "@/components/canvas/CurveTuner";
 
@@ -20,6 +21,7 @@ export default function Home() {
       <IntervalLegend />
       <DetailPanel />
       {showTuner && <CurveTuner />}
+      <LoadingFlow />
     </main>
   );
 }
