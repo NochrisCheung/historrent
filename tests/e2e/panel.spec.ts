@@ -56,6 +56,21 @@ async function readStore(page: Page): Promise<StoreSnapshot> {
   });
 }
 
+/** Map a slug (used in DOM data-* attrs) to the event's UUID stored on the timeline store. */
+async function eventIdFromSlug(page: Page, slug: string): Promise<string> {
+  return page.evaluate((s) => {
+    const corpus = (
+      window as unknown as {
+        __historrentCorpus?: { events: Array<{ id: string; slug: string }> };
+      }
+    ).__historrentCorpus;
+    if (!corpus) throw new Error("__historrentCorpus not exposed");
+    const event = corpus.events.find((e) => e.slug === s);
+    if (!event) throw new Error(`No event with slug "${s}"`);
+    return event.id;
+  }, slug);
+}
+
 test.describe("Detail panel", () => {
   test("click an item → panel slides in with name, date, citation", async ({ page }) => {
     await page.goto("/");
@@ -83,7 +98,8 @@ test.describe("Detail panel", () => {
     await panCameraToOrigin(page);
 
     await clickDot(page, "hongmen-banquet");
-    await expect.poll(async () => (await readStore(page)).selectedId).toBe("hongmen-banquet");
+    const hongmenId = await eventIdFromSlug(page, "hongmen-banquet");
+    await expect.poll(async () => (await readStore(page)).selectedId).toBe(hongmenId);
     await expect(page.getByTestId("detail-panel")).toBeVisible();
 
     await page.keyboard.press("Escape");
@@ -113,7 +129,8 @@ test.describe("Detail panel", () => {
     await panCameraToOrigin(page);
 
     await clickDot(page, "imperial-accession");
-    await expect.poll(async () => (await readStore(page)).selectedId).toBe("imperial-accession");
+    const imperialId = await eventIdFromSlug(page, "imperial-accession");
+    await expect.poll(async () => (await readStore(page)).selectedId).toBe(imperialId);
 
     // Click the upper-left of the canvas, well clear of any item.
     const canvas = await page.locator("canvas").first().boundingBox();

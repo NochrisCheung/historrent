@@ -9,6 +9,7 @@ const SAMPLE: TCitation = {
   section: "高祖本紀",
   paragraph: 1,
   textAnchor: "高祖，沛豐邑中陽裏",
+  text: "高祖，沛豐邑中陽里人，姓劉氏，字季。",
   uri: "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4897",
   language: "zh-Hant",
 };

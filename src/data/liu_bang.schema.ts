@@ -2,11 +2,17 @@
  * Zod schema for the Liu Bang corpus (Phase 1 data shape).
  *
  * Constraints encoded structurally (see implementation_plan §3.3):
+ *  - Every event carries a stable UUID `id` (rename-safe — used as the
+ *    canonical identifier for cache keys, store state, React keys) AND a
+ *    human-readable `slug` (used in DOM `data-*` attributes, E2E
+ *    selectors, URLs).
  *  - Every event carries ≥ 1 citation; the loader rejects citation-less events.
  *  - Every v1 citation links to a ctext.org passage on the canonical
  *    Traditional ("/zh") path; non-ctext URIs are rejected.
- *  - `paragraph` and `textAnchor` are required — without them a citation
- *    isn't actually verifiable.
+ *  - `paragraph`, `textAnchor`, and `text` are required — without them a
+ *    citation isn't actually verifiable. `text` carries the full passage
+ *    fed to DeepSeek (Phase 9); `textAnchor` is a short prefix used to
+ *    deep-link into the ctext.org page.
  *  - Every name has both Simplified and Traditional forms; single-form
  *    names are rejected.
  *  - `FuzzyDate` carries both an EDTF canonical string and pre-computed
@@ -29,7 +35,14 @@ export const Citation = z.object({
   chapter: z.number().int().positive(),
   section: z.string().optional(),
   paragraph: z.number().int().positive(),
+  /** Short prefix used to deep-link into the ctext.org rendered page. */
   textAnchor: z.string().min(1),
+  /**
+   * Full passage text fed verbatim to DeepSeek (Phase 9). For Phase 1's
+   * five seed events we lift a working-copy excerpt from ctext.org;
+   * Phase 12 curation hand-verifies and may extend.
+   */
+  text: z.string().min(1),
   uri: CtextUri,
   language: z.enum(["zh-Hant", "zh-Hans"]),
 });
@@ -80,8 +93,20 @@ const DescriptionVariants = z.object({
 export type TDescriptionVariants = z.infer<typeof DescriptionVariants>;
 
 export const LiuBangEvent = z.object({
-  id: z.string().regex(/^[a-z0-9-]+$/, {
-    message: "id must be a lowercase, hyphen-separated slug",
+  /**
+   * UUID v4 — the canonical, rename-safe event identifier. Used as the
+   * Zustand store key, React reconciliation key, and the cache-key
+   * component for DeepSeek synthesis (Phase 9).
+   */
+  id: z.string().uuid(),
+  /**
+   * Lowercase, hyphen-separated readable handle. Used in DOM
+   * `data-event-name` / `data-event-date` attributes, E2E selectors,
+   * and any future URL anchors. Renaming a slug doesn't invalidate
+   * caches because cache keys live on `id`.
+   */
+  slug: z.string().regex(/^[a-z0-9-]+$/, {
+    message: "slug must be a lowercase, hyphen-separated handle",
   }),
   name: NameVariants,
   date: FuzzyDate,

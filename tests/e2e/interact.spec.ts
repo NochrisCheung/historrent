@@ -88,6 +88,21 @@ async function readStore(page: Page): Promise<StoreSnapshot> {
   });
 }
 
+/** Map a slug (used in DOM data-* attrs) to the event's UUID stored on the timeline store. */
+async function eventIdFromSlug(page: Page, slug: string): Promise<string> {
+  return page.evaluate((s) => {
+    const corpus = (
+      window as unknown as {
+        __historrentCorpus?: { events: Array<{ id: string; slug: string }> };
+      }
+    ).__historrentCorpus;
+    if (!corpus) throw new Error("__historrentCorpus not exposed");
+    const event = corpus.events.find((e) => e.slug === s);
+    if (!event) throw new Error(`No event with slug "${s}"`);
+    return event.id;
+  }, slug);
+}
+
 test.describe("Item interaction", () => {
   test("hover sets hoveredId; moving away clears it", async ({ page }) => {
     await page.goto("/");
@@ -95,8 +110,9 @@ test.describe("Item interaction", () => {
     await expect(page.locator("[data-event-name]")).toHaveCount(5);
     await panCameraToOrigin(page);
 
+    const imperialId = await eventIdFromSlug(page, "imperial-accession");
     await hoverDot(page, "imperial-accession");
-    await expect.poll(async () => (await readStore(page)).hoveredId).toBe("imperial-accession");
+    await expect.poll(async () => (await readStore(page)).hoveredId).toBe(imperialId);
 
     await page.mouse.move(0, 0);
     await expect.poll(async () => (await readStore(page)).hoveredId).toBeNull();
@@ -108,17 +124,20 @@ test.describe("Item interaction", () => {
     await expect(page.locator("[data-event-name]")).toHaveCount(5);
     await panCameraToOrigin(page);
 
+    const imperialId = await eventIdFromSlug(page, "imperial-accession");
+    const hongmenId = await eventIdFromSlug(page, "hongmen-banquet");
+
     await hoverDot(page, "imperial-accession");
-    await expect.poll(async () => (await readStore(page)).hoveredId).toBe("imperial-accession");
+    await expect.poll(async () => (await readStore(page)).hoveredId).toBe(imperialId);
     await page.mouse.down();
     await page.mouse.up();
-    await expect.poll(async () => (await readStore(page)).selectedId).toBe("imperial-accession");
+    await expect.poll(async () => (await readStore(page)).selectedId).toBe(imperialId);
 
     await hoverDot(page, "hongmen-banquet");
-    await expect.poll(async () => (await readStore(page)).hoveredId).toBe("hongmen-banquet");
+    await expect.poll(async () => (await readStore(page)).hoveredId).toBe(hongmenId);
     await page.mouse.down();
     await page.mouse.up();
-    await expect.poll(async () => (await readStore(page)).selectedId).toBe("hongmen-banquet");
+    await expect.poll(async () => (await readStore(page)).selectedId).toBe(hongmenId);
   });
 
   test("event names render above the dot, dates below", async ({ page }) => {

@@ -26,7 +26,8 @@
   },
   "events": [
     {
-      "id": "birth",
+      "id": "66519f1b-0b0d-4011-97f7-a0db30ab25e0",
+      "slug": "birth",
       "name": {
         "zhHans": "生于沛县",
         "zhHant": "生於沛縣",
@@ -53,6 +54,7 @@
           "section": "高祖本紀",
           "paragraph": 1,
           "textAnchor": "高祖，沛豐邑中陽裏",
+          "text": "高祖，沛豐邑中陽里人，姓劉氏，字季。父曰太公，母曰劉媼。其先劉媼嘗息大澤之陂，夢與神遇。是時雷電晦冥，太公往視，則見蛟龍於其上。已而有身，遂產高祖。",
           "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4897",
           "language": "zh-Hant"
         }
@@ -61,7 +63,8 @@
       "tags": ["birth", "origin"]
     },
     {
-      "id": "acclaimed-pei-gong",
+      "id": "05df3338-db09-4b98-a09f-9164bc18c105",
+      "slug": "acclaimed-pei-gong",
       "name": {
         "zhHans": "立为沛公",
         "zhHant": "立為沛公",
@@ -88,6 +91,7 @@
           "section": "高祖本紀",
           "paragraph": 9,
           "textAnchor": "於是劉季數讓",
+          "text": "於是劉季數讓。眾莫敢為，乃立季為沛公。祠黃帝，祭蚩尤於沛庭，而釁鼓旗，幟皆赤。由所殺蛇白帝子，殺者赤帝子，故上赤。於是少年豪吏如蕭、曹、樊噲等皆為收沛子弟二三千人，攻胡陵、方與，還守豐。",
           "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4905",
           "language": "zh-Hant"
         }
@@ -96,7 +100,8 @@
       "tags": ["uprising", "ascension"]
     },
     {
-      "id": "enter-xianyang",
+      "id": "5416b88d-271b-46a2-a8b9-a86d089b163b",
+      "slug": "enter-xianyang",
       "name": {
         "zhHans": "攻入咸阳",
         "zhHant": "攻入咸陽",
@@ -123,6 +128,7 @@
           "section": "高祖本紀",
           "paragraph": 22,
           "textAnchor": "漢元年十月，沛公兵",
+          "text": "漢元年十月，沛公兵遂先諸侯至霸上。秦王子嬰素車白馬，係頸以組，封皇帝璽符節，降軹道旁。諸將或言誅秦王。沛公曰：「始懷王遣我，固以能寬容；且人已服降，又殺之，不祥。」乃以秦王屬吏，遂西入咸陽。",
           "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4918",
           "language": "zh-Hant"
         }
@@ -131,7 +137,8 @@
       "tags": ["military", "qin-fall"]
     },
     {
-      "id": "hongmen-banquet",
+      "id": "5e511f2e-b96d-4c7d-aede-f9abffbf20a5",
+      "slug": "hongmen-banquet",
       "name": {
         "zhHans": "鸿门宴",
         "zhHant": "鴻門宴",
@@ -158,6 +165,7 @@
           "section": "高祖本紀",
           "paragraph": 23,
           "textAnchor": "沛公從百餘騎",
+          "text": "沛公從百餘騎，驅之鴻門，見謝項羽。項羽曰：「此沛公左司馬曹無傷言之；不然，籍何以至此。」沛公以樊噲、張良故，得解歸。歸，立誅曹無傷。",
           "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4919",
           "language": "zh-Hant"
         }
@@ -166,7 +174,8 @@
       "tags": ["court", "xiang-yu"]
     },
     {
-      "id": "imperial-accession",
+      "id": "e99910e4-ef2a-4cb2-9fc0-b3c01b937eb4",
+      "slug": "imperial-accession",
       "name": {
         "zhHans": "即皇帝位",
         "zhHant": "即皇帝位",
@@ -193,6 +202,7 @@
           "section": "高祖本紀",
           "paragraph": 53,
           "textAnchor": "甲午，乃即皇帝位",
+          "text": "甲午，乃即皇帝位汜水之陽。皇帝曰義帝無後。齊王韓信習楚風俗，徙為楚王，都下邳。立建成侯彭越為梁王，都定陶。故韓王信為韓王，都陽翟。徙衡山王吳芮為長沙王，都臨湘。番君之將梅鋗有功，從入武關，故德番君。",
           "uri": "https://ctext.org/shiji/gao-zu-ben-ji/zh#n4949",
           "language": "zh-Hant"
         }

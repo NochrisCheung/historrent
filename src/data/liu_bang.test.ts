@@ -31,7 +31,19 @@ describe("liu_bang.json", () => {
       const hasGaoZu = event.citations.some(
         (c) => c.chapter === 8 && /ctext\.org\/shiji\/gao-zu-ben-ji\/zh#n\d+/.test(c.uri),
       );
-      expect(hasGaoZu, `event "${event.id}" lacks a 高祖本紀 ctext.org citation`).toBe(true);
+      expect(hasGaoZu, `event "${event.slug}" lacks a 高祖本紀 ctext.org citation`).toBe(true);
+    }
+  });
+
+  it("every citation carries a non-empty `text` passage for the synthesis prompt", () => {
+    const corpus = LiuBangCorpus.parse(liuBangData);
+    for (const event of corpus.events) {
+      for (const c of event.citations) {
+        expect(
+          c.text.length,
+          `event "${event.slug}" citation Shiji-${c.chapter}-${c.paragraph} has empty text`,
+        ).toBeGreaterThan(0);
+      }
     }
   });
 
@@ -43,9 +55,15 @@ describe("liu_bang.json", () => {
     }
   });
 
-  it("all event ids are unique slugs", () => {
+  it("all event UUIDs are unique", () => {
     const corpus = LiuBangCorpus.parse(liuBangData);
     const ids = corpus.events.map((e) => e.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("all event slugs are unique", () => {
+    const corpus = LiuBangCorpus.parse(liuBangData);
+    const slugs = corpus.events.map((e) => e.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
   });
 });

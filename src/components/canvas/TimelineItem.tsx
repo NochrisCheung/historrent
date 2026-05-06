@@ -148,7 +148,7 @@ export function TimelineItem({ event, lane }: TimelineItemProps) {
         style={{ pointerEvents: "none", userSelect: "none" }}
       >
         <div
-          data-event-name={event.id}
+          data-event-name={event.slug}
           data-event-lane={lane}
           style={{
             position: "relative",
@@ -186,7 +186,7 @@ export function TimelineItem({ event, lane }: TimelineItemProps) {
         style={{ pointerEvents: "none", userSelect: "none" }}
       >
         <div
-          data-event-date={event.id}
+          data-event-date={event.slug}
           style={{
             position: "relative",
             transform: `translateY(${lane * LANE_STEP_PX}px)`,

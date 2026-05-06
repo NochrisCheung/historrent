@@ -1,0 +1,161 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 1`] = `
+{
+  "language": "zh-Hans",
+  "passageHash": "bb99ab5a7f11d225c24196ace9cf1b2c2b3ec8b9faa52ce260158acc5ee7c056",
+  "slug": "birth",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：生于沛县（约 前251年）
+
+来源段落：
+[Shiji-8-1] 高祖，沛豐邑中陽里人，姓劉氏，字季。父曰太公，母曰劉媼。其先劉媼嘗息大澤之陂，夢與神遇。是時雷電晦冥，太公往視，則見蛟龍於其上。已而有身，遂產高祖。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。请用简体中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 2`] = `
+{
+  "language": "zh-Hant",
+  "passageHash": "bb99ab5a7f11d225c24196ace9cf1b2c2b3ec8b9faa52ce260158acc5ee7c056",
+  "slug": "birth",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：生於沛縣（约 前251年）
+
+来源段落：
+[Shiji-8-1] 高祖，沛豐邑中陽里人，姓劉氏，字季。父曰太公，母曰劉媼。其先劉媼嘗息大澤之陂，夢與神遇。是時雷電晦冥，太公往視，則見蛟龍於其上。已而有身，遂產高祖。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。請用繁體中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 3`] = `
+{
+  "language": "zh-Hans",
+  "passageHash": "7405ec8750e88f46767eb26b4773698bcea9a27def0f6df2b9f1d37a9b2c7083",
+  "slug": "acclaimed-pei-gong",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：立为沛公（约 前209年）
+
+来源段落：
+[Shiji-8-9] 於是劉季數讓。眾莫敢為，乃立季為沛公。祠黃帝，祭蚩尤於沛庭，而釁鼓旗，幟皆赤。由所殺蛇白帝子，殺者赤帝子，故上赤。於是少年豪吏如蕭、曹、樊噲等皆為收沛子弟二三千人，攻胡陵、方與，還守豐。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。请用简体中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 4`] = `
+{
+  "language": "zh-Hant",
+  "passageHash": "7405ec8750e88f46767eb26b4773698bcea9a27def0f6df2b9f1d37a9b2c7083",
+  "slug": "acclaimed-pei-gong",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：立為沛公（约 前209年）
+
+来源段落：
+[Shiji-8-9] 於是劉季數讓。眾莫敢為，乃立季為沛公。祠黃帝，祭蚩尤於沛庭，而釁鼓旗，幟皆赤。由所殺蛇白帝子，殺者赤帝子，故上赤。於是少年豪吏如蕭、曹、樊噲等皆為收沛子弟二三千人，攻胡陵、方與，還守豐。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。請用繁體中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 5`] = `
+{
+  "language": "zh-Hans",
+  "passageHash": "6ebec12d23afeb4aed79e0da9b2b9b7dd7d6891f2156058e63d5479cfed3f37e",
+  "slug": "enter-xianyang",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：攻入咸阳（约 前207年）
+
+来源段落：
+[Shiji-8-22] 漢元年十月，沛公兵遂先諸侯至霸上。秦王子嬰素車白馬，係頸以組，封皇帝璽符節，降軹道旁。諸將或言誅秦王。沛公曰：「始懷王遣我，固以能寬容；且人已服降，又殺之，不祥。」乃以秦王屬吏，遂西入咸陽。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。请用简体中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 6`] = `
+{
+  "language": "zh-Hant",
+  "passageHash": "6ebec12d23afeb4aed79e0da9b2b9b7dd7d6891f2156058e63d5479cfed3f37e",
+  "slug": "enter-xianyang",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：攻入咸陽（约 前207年）
+
+来源段落：
+[Shiji-8-22] 漢元年十月，沛公兵遂先諸侯至霸上。秦王子嬰素車白馬，係頸以組，封皇帝璽符節，降軹道旁。諸將或言誅秦王。沛公曰：「始懷王遣我，固以能寬容；且人已服降，又殺之，不祥。」乃以秦王屬吏，遂西入咸陽。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。請用繁體中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 7`] = `
+{
+  "language": "zh-Hans",
+  "passageHash": "fcedbd9f0dacdb99ed3655171cf32c8c8215e2ff6bcb6083ae779e6aaac0e47e",
+  "slug": "hongmen-banquet",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：鸿门宴（约 前206年）
+
+来源段落：
+[Shiji-8-23] 沛公從百餘騎，驅之鴻門，見謝項羽。項羽曰：「此沛公左司馬曹無傷言之；不然，籍何以至此。」沛公以樊噲、張良故，得解歸。歸，立誅曹無傷。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。请用简体中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 8`] = `
+{
+  "language": "zh-Hant",
+  "passageHash": "fcedbd9f0dacdb99ed3655171cf32c8c8215e2ff6bcb6083ae779e6aaac0e47e",
+  "slug": "hongmen-banquet",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：鴻門宴（约 前206年）
+
+来源段落：
+[Shiji-8-23] 沛公從百餘騎，驅之鴻門，見謝項羽。項羽曰：「此沛公左司馬曹無傷言之；不然，籍何以至此。」沛公以樊噲、張良故，得解歸。歸，立誅曹無傷。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。請用繁體中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 9`] = `
+{
+  "language": "zh-Hans",
+  "passageHash": "b7bb089b80379ea9e296597d4cc982b276f9eeeee4fc1f47e67c05b6909d3ed7",
+  "slug": "imperial-accession",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：即皇帝位（约 前202年）
+
+来源段落：
+[Shiji-8-53] 甲午，乃即皇帝位汜水之陽。皇帝曰義帝無後。齊王韓信習楚風俗，徙為楚王，都下邳。立建成侯彭越為梁王，都定陶。故韓王信為韓王，都陽翟。徙衡山王吳芮為長沙王，都臨湘。番君之將梅鋗有功，從入武關，故德番君。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。请用简体中文回答。",
+  "version": "v1",
+}
+`;
+
+exports[`buildSynthesisPrompt > snapshots — Hans + Hant for all 5 seed events 10`] = `
+{
+  "language": "zh-Hant",
+  "passageHash": "b7bb089b80379ea9e296597d4cc982b276f9eeeee4fc1f47e67c05b6909d3ed7",
+  "slug": "imperial-accession",
+  "system": "You are a careful, source-grounded historical assistant. You answer ONLY from the source passages provided. You DO NOT invent dates, names, places, or causes. Every claim in your answer must cite the source passage by its bracketed reference. If the provided passages do not contain enough information to answer, you say so explicitly. Your answers are in Modern Standard Chinese (Simplified or Traditional, matching the user's preference).",
+  "user": "事件：即皇帝位（约 前202年）
+
+来源段落：
+[Shiji-8-53] 甲午，乃即皇帝位汜水之陽。皇帝曰義帝無後。齊王韓信習楚風俗，徙為楚王，都下邳。立建成侯彭越為梁王，都定陶。故韓王信為韓王，都陽翟。徙衡山王吳芮為長沙王，都臨湘。番君之將梅鋗有功，從入武關，故德番君。
+
+请用约 80–120 个汉字综合上述来源段落对该事件的记述。每个论断必须用方括号引用对应的段落（例如 [Shiji-8-22]）。如果段落信息不足以回答某个方面，请说明。請用繁體中文回答。",
+  "version": "v1",
+}
+`;

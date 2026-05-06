@@ -16,8 +16,11 @@
   "panel": {
     "close": "關閉",
     "citations": "來源",
+    "synthesis": "AI 綜合",
     "showSynthesis": "顯示綜合",
-    "showSynthesisDeferred": "顯示綜合 (Phase 9)",
-    "synthesisDeferredHint": "AI 綜合將在第 9 階段接入"
+    "synthesising": "綜合中…",
+    "synthesisError": "綜合請求失敗",
+    "synthesisRetry": "重試",
+    "synthesisCachedHint": "快取命中"
   }
 }

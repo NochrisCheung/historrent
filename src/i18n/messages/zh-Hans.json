@@ -16,8 +16,11 @@
   "panel": {
     "close": "关闭",
     "citations": "来源",
+    "synthesis": "AI 综合",
     "showSynthesis": "显示综合",
-    "showSynthesisDeferred": "显示综合 (Phase 9)",
-    "synthesisDeferredHint": "AI 综合将在第 9 阶段接入"
+    "synthesising": "综合中…",
+    "synthesisError": "综合请求失败",
+    "synthesisRetry": "重试",
+    "synthesisCachedHint": "缓存命中"
   }
 }

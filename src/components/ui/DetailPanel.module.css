@@ -120,15 +120,121 @@
   font-family: var(--font-chrome);
 }
 
-.synthesisStub {
+.synthesis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.synthesisHeading {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-family: var(--font-chrome);
+}
+
+.synthesisButton {
   appearance: none;
   background: transparent;
-  border: 1px dashed var(--ink-muted);
-  color: var(--ink-muted);
+  border: 1px solid var(--ink);
+  color: var(--ink);
   padding: var(--s-2) var(--s-3);
   border-radius: 4px;
-  cursor: not-allowed;
+  cursor: pointer;
   font-family: var(--font-chrome);
   font-size: 13px;
-  margin-top: auto;
+  align-self: flex-start;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.synthesisButton:hover {
+  background: var(--ink);
+  color: var(--canvas-bg);
+}
+
+.synthesisStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.synthesisDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: synthesisPulse 1s ease-in-out infinite;
+}
+
+@keyframes synthesisPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.synthesisError {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.synthesisText {
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--ink);
+  font-family: var(--font-content);
+}
+
+.synthesisChip {
+  appearance: none;
+  background: rgba(191, 36, 42, 0.08);
+  border: 1px solid rgba(191, 36, 42, 0.25);
+  color: var(--accent);
+  padding: 1px 6px;
+  margin: 0 2px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font-chrome);
+  font-size: 11px;
+  vertical-align: baseline;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.synthesisChip:hover {
+  background: rgba(191, 36, 42, 0.16);
+}
+
+.synthesisCached {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-family: var(--font-chrome);
+  margin-top: var(--s-2);
+}
+
+.citationFlash {
+  animation: citationFlash 0.8s ease-out;
+}
+
+@keyframes citationFlash {
+  0% {
+    background: rgba(191, 36, 42, 0.18);
+  }
+  100% {
+    background: rgba(255, 255, 255, 0.4);
+  }
 }
